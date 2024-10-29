@@ -177,7 +177,11 @@ df
 
 ```{r}
 source("../scripts/make_grouped.R")
+source("../scripts/model_outcomes.R")
 df <- generate_multilevel_data(S = 5, Ns = c(1, 80, 42, 2, 4), p = 7)
 newdf <- make_grouped(df, grouping = "Group", group_level = c("X4", "X5"), unit_level = c("X1", "X2", "X3"), outcome = "Y")
+damodel <- model_outcomes(data = newdf,
+                          outcome = "Y",
+                          grouping = "Group")
 
 ```
