@@ -64,7 +64,7 @@ Methods for faster multi-level matching to be submitted to the 2024 ASA Student 
 ### Cake batter
 - Create all necessray code for the paper
     - Implement the `group_distances`
-        - Implement `make_grouped`
+        - ~~Implement `make_grouped`~~
         - Implement `model_outcomes`
         - Implement `get_se`
         - Implement `calc_caliper`
