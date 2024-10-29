@@ -67,6 +67,7 @@ Methods for faster multi-level matching to be submitted to the 2024 ASA Student 
         - Implement `make_grouped`
         - Implement `model_outcomes`
         - Implement `get_se`
+        - Implement `calc_caliper`
         - Implement `in_caliper`
         - Implement `get_distances`
     - Run simulations
