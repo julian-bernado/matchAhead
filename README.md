@@ -69,7 +69,7 @@ Methods for faster multi-level matching to be submitted to the 2024 ASA Student 
         - Implement `get_se`
         - Implement `calc_caliper`
         - Implement `in_caliper`
-        - Implement `get_distances`
+        - ~~Implement `get_distances`~~
     - Run simulations
         - Read a bit on how to effectively do a simulation study in this contect
         - Make a `simulations.R` file
