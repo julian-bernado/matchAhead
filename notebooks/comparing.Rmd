@@ -160,19 +160,6 @@ balanceTable(df[c("X1", "X2", "Treatment")], treatment = "Treatment")
 
 df <- generate_multilevel_data(S = 5, Ns = c(1, 80, 42, 2, 4), p = 2) %>%
   assign_treatment()
-
-balanceTable(df[c("X1", "X2", "Treatment", "Group")])
-catholic_schools
-matchMulti(data = df,
-           treatment = "Treatment",
-           school.id = "Group",
-           student.vars = c("X1", "X2"))
-
-?matchMulti
-
-treat.table <- table(df[["Group"]], df[["Treatment"]])
-apply(treat.table, 1, function(x) which(x > 0) - 1)
-df
 ```
 
 ```{r}
