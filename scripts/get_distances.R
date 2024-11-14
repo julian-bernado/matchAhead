@@ -1,58 +1,99 @@
 library(dplyr)
-source("maxflow.R")
+library(future.apply)
+source("scripts/maxflow.R")
+
+split_df <- function(df, K) {
+  n <- nrow(df)
+  indices <- cut(seq_len(n), breaks = K, labels = FALSE)
+  split(df, indices)
+}
 
 bias_distance <- function(group1, group2, group_preds){
-  return(abs(group_preds["group1"] - group_preds["group2"]))
+  return(abs(group_preds[group1] - group_preds[group2]))
 }
 
 calipered_dist <- function(x, y, caliper){
-  if(abs(x-y) < unit_caliper){
-    return(abs(x-y))
+  caliper <- as.numeric(caliper)
+  if(abs(x-y) < caliper){
+    return(0)
   } else{
     return(NA)
   }
 }
 
-variance_measure <- function(group1, group2, df, unit_preds, unit_caliper){
-  df_wscores <- df %>% mutate(unit_preds = unit_preds)
+variance_measure <- function(treatment_group, control_group, data, unit_preds, unit_caliper){
+  # Add unit_preds to the dataframe
+  df_wscores <- data
+  df_wscores$unit_preds <- unit_preds
   
-  group1_vals <- df_wscores %>%
-    filter(Group == group1) %>%
-    pull(unit_preds)
+  # Extract predictions for each group
+  group1_vals <- df_wscores$unit_preds[df_wscores$Group == treatment_group]
+  group2_vals <- df_wscores$unit_preds[df_wscores$Group == control_group]
   
-  group2_vals <- df_wscores %>%
-    filter(Group == group2) %>%
-    pull(unit_preds)
+  Nt <- length(group1_vals)
   
-  distance_matrix <- outer(group1_vals,
-                           group2_vals,
-                           FUN = calipered_dist(caliper = unit_caliper))
+  # Compute distance matrix with caliper
+  distance_matrix <- outer(group1_vals, group2_vals, 
+                           Vectorize(function(x, y) calipered_dist(x, y, caliper = unit_caliper)))
   
-  return(maxFlow(distance_matrix, max.controls = 1))
+  # Count valid matches
+  num_w_matches <- sum(rowSums(!is.na(distance_matrix)) > 0)
+  
+  if(num_w_matches < Nt){
+    if(num_w_matches == 0){
+      return(Nt)
+    }
+    return(Nt / num_w_matches)
+  } else{
+    mc <- max_controls(distance_matrix, max.controls = 1)
+    return(1/mc)
+  }
 }
 
-get_distances <- function(df, pairs_df, group_model, unit_model, unit_caliper){
-  group_df <- df %>%
-    group_by(Group) %>%
-    slice_head(n = 1) %>%
-    ungroup()
+get_distances <- function(data, pairs_data, unit_preds, group_preds, unit_caliper){
+  pairs_data[, `:=`(
+    bias = mapply(
+      FUN = bias_distance,
+      treatment_group,
+      control_group,
+      MoreArgs = list(group_preds = group_preds)
+    ),
+    ess = mapply(
+      FUN = variance_measure,
+      treatment_group,
+      control_group,
+      MoreArgs = list(
+        data = data,
+        unit_preds = unit_preds,
+        unit_caliper = unit_caliper
+      )
+    )
+  )]
   
-  groups <- group_df %>%
-    pull(Group)
+  return(pairs_data)
+}
+
+parallel_get_distances <- function(data, pairs_data, unit_preds, group_preds, unit_caliper, K = 1){
+  # Split pairs_data into K chunks
+  pairs_list <- split_df(pairs_data, K)
   
-  group_preds <- predict(group_model, newdata = group_df)
-  names(group_preds) <- groups
+  # Plan for parallel execution using multiprocess
+  plan(multisession, workers = K)
   
-  unit_preds <- predict(unit_model, newdata = df)
+  # Function to process one chunk
+  process_chunk <- function(chunk){
+    get_distances(data = data,
+                  pairs_data = chunk,
+                  unit_preds = unit_preds,
+                  group_preds = group_preds,
+                  unit_caliper = unit_caliper)
+  }
   
-  pairs_df <- pairs_df %>%
-    mutate(bias = bias_distance(group1,
-                                group2,
-                                group_preds = group_preds)) %>%
-    mutate(ess = variance_measure(group1,
-                                  group2,
-                                  df = df,
-                                  unit_preds = unit_preds,
-                                  unit_caliper = unit_caliper))
-  return(pairs_df)
+  # Process each chunk in parallel
+  result_list <- future_lapply(pairs_list, process_chunk, future.seed = TRUE)
+  
+  # Combine the results
+  result <- bind_rows(result_list)
+  
+  return(result)
 }

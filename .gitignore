@@ -1,2 +1,32 @@
+# macOS system files
 .DS_Store
-.DS_Store?
+
+# R specific files
+.Rhistory
+.RData
+.Rproj.user/
+
+# Git directories and files (already ignored, but for redundancy)
+.git/
+
+# Temporary and build files
+*.aux
+*.log
+*.pdf
+*.tex
+*.sty
+
+# Generated plots and tables
+comparison/plots/
+comparison/tables/
+
+# Notebooks outputs
+notebooks/*.html
+
+# Scripts temporary files
+scripts/*.tmp
+scripts/*.bak
+
+# Any other temporary files
+*.tmp
+*.bak

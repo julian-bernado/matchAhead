@@ -1,6 +1,6 @@
 library(lme4)
 
-write_formula <- function(data, outcome, grouping){
+write_formula <- function(data, outcome = "Y", grouping = "Group"){
   # Select covariates, excluding outcome and grouping columns
   covars <- data %>%
     select(-all_of(c(outcome, grouping))) %>%
@@ -16,8 +16,8 @@ write_formula <- function(data, outcome, grouping){
   return(formula(paste0(lhs_formula, rhs_formula)))
 }
 
-model_outcomes <- function(data, outcome, grouping){
-  mm_formula <- write_formula(data, outcome, grouping)
+model_outcomes <- function(data, outcome = "Y", grouping = "Group"){
+  mm_formula <- write_formula(data)
   return(lmer(formula = mm_formula,
               data = data))
 }

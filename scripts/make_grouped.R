@@ -1,8 +1,8 @@
 library(dplyr)
 
-make_grouped <- function(data, grouping, group_level, unit_level, outcome) {
+make_grouped <- function(data, grouping = "Group", group_level, unit_level, outcome = "Y", treatment = "Treatment") {
   # Combine all relevant covariates including the outcome
-  all_covars <- c(grouping, group_level, unit_level, outcome)
+  all_covars <- c(grouping, group_level, unit_level, outcome, treatment)
   
   # Check if all specified columns exist in the data
   missing_cols <- setdiff(all_covars, names(data))

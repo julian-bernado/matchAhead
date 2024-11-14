@@ -14,7 +14,14 @@ knitr::opts_chunk$set(echo = TRUE)
 set.seed(525600)
 library(dplyr)
 library(optmatch)
-library(matchMulti)
+library(RItools)
+
+df <- generate_multilevel_data(10, 100, p = 4) %>% assign_treatment()
+matching <- pairmatch(Treatment ~ X1 + X2 + X3 + X4, data = df)
+pre_bt <- balanceTest(Treatment ~ X1 + X2 + X3 + X4, data = df)
+bt <- balanceTest(Treatment ~ X1 + X2 + X3 + X4 + strata(matching), data = df)
+pre_bt
+bt
 ```
 
 ```{r}
@@ -165,7 +172,13 @@ df <- generate_multilevel_data(S = 5, Ns = c(1, 80, 42, 2, 4), p = 2) %>%
 ```{r}
 source("../scripts/make_grouped.R")
 source("../scripts/model_outcomes.R")
-df <- generate_multilevel_data(S = 5, Ns = c(1, 80, 42, 2, 4), p = 7)
+df <- generate_multilevel_data(S = 5, Ns = c(1, 80, 42, 2, 4), p = 7) %>% assign_treatment()
+df<-as.data.frame(df)
+rownames(df) <- 1:length(df$X1)
+
+
+outer(df[1:10, "X1"], df[4:141, "X3"], FUN = function(x, y) return((x - y)^2))
+
 newdf <- make_grouped(df, grouping = "Group", group_level = c("X4", "X5"), unit_level = c("X1", "X2", "X3"), outcome = "Y")
 damodel <- model_outcomes(data = newdf,
                           outcome = "Y",
