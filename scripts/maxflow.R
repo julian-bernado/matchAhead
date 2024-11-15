@@ -5,35 +5,29 @@ generate_network <- function(M, max.controls){
   nt <- nrow(M)
   nc <- ncol(M)
   
-  from_nodes = c()
-  to_nodes = c()
-  capacities = c()
+  # Find all valid matches
+  match_indices <- which(!is.na(M), arr.ind = TRUE)
   
-  for (i in 1:nt) {
-    for(j in 1:nc){
-      if(length(M[i,j]) == 1){
-        from_nodes = c(from_nodes, 2 + i)
-        to_nodes = c(to_nodes, 2 + nt + j)
-        capacities = c(capacities, 1)
-      }
-    }
-  }
+  # Edges from treatments to controls
+  from_nodes <- 2 + match_indices[, 1]
+  to_nodes <- 2 + nt + match_indices[, 2]
+  capacities <- rep(1, nrow(match_indices))
   
-  for(i in 1:nt){
-    from_nodes = c(from_nodes, 1)
-    to_nodes = c(to_nodes, 2+i)
-    capacities = c(capacities, max.controls)
-  }
+  # Edges from source to treatments
+  from_nodes <- c(from_nodes, rep(1, nt))
+  to_nodes <- c(to_nodes, 2 + 1:nt)
+  capacities <- c(capacities, rep(max.controls, nt))
   
-  for(j in 1:nc){
-    from_nodes = c(from_nodes, 2+nt+j)
-    to_nodes = c(to_nodes, 2)
-    capacities = c(capacities, 1)
-  }
+  # Edges from controls to sink
+  from_nodes <- c(from_nodes, 2 + nt + 1:nc)
+  to_nodes <- c(to_nodes, rep(2, nc))
+  capacities <- c(capacities, rep(1, nc))
   
-  network = list(from_node = from_nodes,
-                 to_node = to_nodes,
-                 capacity = capacities)
+  network <- list(
+    from_node = from_nodes,
+    to_node = to_nodes,
+    capacity = capacities
+  )
   return(network)
 }
 
