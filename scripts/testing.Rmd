@@ -1,0 +1,49 @@
+---
+title: "Comparing"
+author: "Julian Bernado"
+date: "2024-10-24"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, root.dir = "/Users/bernado/Desktop/academics/carcajou/research/matchAhead")
+```
+
+```{r}
+setwd("/Users/bernado/Desktop/academics/carcajou/research/matchAhead")
+getwd()
+source("scripts/generate_data.R")
+source("scripts/end_to_end.R")
+```
+
+```{r}
+set.seed(10)
+
+old_df <- generate_multilevel_data(S = 500, Ns = sample(c(100, 200, 15, 20, 4), size = 500, replace = TRUE), p = 7) %>% assign_treatment(Nt = 35)
+new_df <- generate_multilevel_data(S = 500, Ns = sample(c(100, 200, 15, 20, 4), size = 500, replace = TRUE), p = 7) %>% assign_treatment(Nt = 35)
+
+t3 <- Sys.time()
+result2 <- end_to_end_keele(old_data = old_df,
+           new_data = new_df,
+           grouping = "Group",
+           group_level = c("X1", "X2", "X3", "X4"),
+           unit_level = c("X5", "X6", "X7"),
+           outcome = "Y",
+           treatment = "Treatment")
+t4 <- Sys.time()
+t1 <- Sys.time()
+result1 <- end_to_end(old_data = old_df,
+           new_data = new_df,
+           grouping = "Group",
+           group_level = c("X1", "X2", "X3", "X4"),
+           unit_level = c("X5", "X6", "X7"),
+           outcome = "Y",
+           treatment = "Treatment")
+t2 <- Sys.time()
+
+print((t4-t3)*(1e6/16275) - (t2-t1)*(1e6/16275))
+print((t4-t3)*(1e6/16275))
+as.numeric(t2-t1)/as.numeric(t4-t3)
+print((t2-t1)/(t4-t3))
+37.76018/(60*1.477449)
+```

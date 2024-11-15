@@ -16,8 +16,11 @@ library(dplyr)
 library(optmatch)
 library(RItools)
 
-df <- generate_multilevel_data(10, 100, p = 4) %>% assign_treatment()
+df <- generate_multilevel_data(2, c(4, 8), p = 4) %>% assign_treatment()
 matching <- pairmatch(Treatment ~ X1 + X2 + X3 + X4, data = df)
+df$X1[!is.na(as.numeric(matching))]
+
+is.na(as.numeric(matching[6]))
 pre_bt <- balanceTest(Treatment ~ X1 + X2 + X3 + X4, data = df)
 bt <- balanceTest(Treatment ~ X1 + X2 + X3 + X4 + strata(matching), data = df)
 pre_bt
