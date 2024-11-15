@@ -2,9 +2,10 @@
 
 # Load necessary libraries
 library(optmatch)
+library(MASS)
 library(dplyr)
 library(data.table)
-library(MASS)    # For Mahalanobis distance and generalized inverse
+library(readr)
 library(proxy)   # For distance calculations
 
 # Function to perform closeness analysis
@@ -17,10 +18,19 @@ closeness_analysis <- function(output_df, student_data, grouping_var, measures =
   
   # Step 1: Pair match treated schools to control schools based on measures equally
   # Calculate the combined score for matching (average of specified measures)
-  output_df <- output_df %>%
-    mutate(bias = bias/max(bias)) %>%
-    mutate(ess = ess/max(ess)) %>%
-    mutate(match_score = rowMeans(across(all_of(measures))))
+  output_df$bias[is.na(output_df$bias)] <- Inf
+  output_df$bias <- output_df$bias/max(output_df$bias[!is.infinite(output_df$bias)])
+  #output_df$bias <- exp(output_df$bias)
+  #output_df$bias <- (output_df$bias - mean(output_df$bias[!is.infinite(output_df$bias)]))/sd(output_df$bias[!is.infinite(output_df$bias)])
+  #output_df$bias <- output_df$bias - min(output_df$bias)
+  output_df$ess[is.na(output_df$ess)] <- Inf
+  output_df$ess <- output_df$ess/max(output_df$ess[!is.infinite(output_df$ess)])
+  #output_df$ess <- exp(output_df$ess)
+  #output_df$ess <- (output_df$ess - mean(output_df$ess[!is.infinite(output_df$ess)]))/sd(output_df$ess[!is.infinite(output_df$ess)])
+  #output_df$ess <- output_df$ess - min(output_df$ess)
+  output_df$match_score <- sqrt(output_df$bias*output_df$ess)
+  output_df$match_score <- output_df$match_score/max(output_df$match_score[is.finite(output_df$match_score)])
+  #print(head(output_df))
   
   # Get lists of unique treated and control schools
   treated_schools <- unique(output_df$treatment_group)
@@ -32,27 +42,16 @@ closeness_analysis <- function(output_df, student_data, grouping_var, measures =
                                    dimnames = list(treated_schools, control_schools))
   
   # Fill in the distance matrix with match scores
-  for(i in seq_len(nrow(output_df))){
-    t_school <- output_df$treatment_group[i]
-    c_school <- output_df$control_group[i]
-    score <- output_df$match_score[i]
-    # Assign the score to the corresponding cell in the matrix
-    if(t_school %in% treated_schools && c_school %in% control_schools){
-      school_distance_matrix[as.character(t_school), as.character(c_school)] <- score
-    }
+  for(i in 1:nrow(school_distance_matrix)){
+	  treatment_school <- rownames(school_distance_matrix)[i]
+	  school_distance_matrix[i,] <- output_df %>% filter(treatment_group == treatment_school) %>% pull(match_score)
   }
   
-  # Convert the distance matrix to a vector suitable for pairmatch
-  school_distance_vector <- as.vector(school_distance_matrix)
-  names(school_distance_vector) <- paste0(rep(rownames(school_distance_matrix), times = ncol(school_distance_matrix)), "|",
-                                          rep(colnames(school_distance_matrix), each = nrow(school_distance_matrix)))
-  
-  # Create a factor indicating the schools (treated and control)
-  school_factor <- factor(c(rownames(school_distance_matrix), colnames(school_distance_matrix)))
-  names(school_factor) <- c(rownames(school_distance_matrix), colnames(school_distance_matrix))
-  
   # Perform pair matching on schools
-  school_match <- pairmatch(school_distance_vector, data = school_factor)
+  #print(dim(school_distance_matrix))
+  #print(school_distance_matrix)
+  school_match <- pairmatch(school_distance_matrix) 
+  #print(school_match)
   
   # Extract matched pairs of schools
   matched_schools <- data.frame(
@@ -64,14 +63,9 @@ closeness_analysis <- function(output_df, student_data, grouping_var, measures =
   # Separate treated and control schools in matched pairs
   matched_schools <- matched_schools %>%
     mutate(treatment_status = ifelse(school %in% treated_schools, "treated", "control"))
-  
-  # For each matched group, there should be one treated and one control school
-  # Remove any unmatched or improperly matched groups
-  matched_groups <- matched_schools %>%
-    group_by(match_group) %>%
-    filter(n() == 2,
-           all(c("treated", "control") %in% treatment_status)) %>%
-    ungroup()
+
+  print("ms1")
+  print(matched_schools)
   
   # Step 2: Within each matched pair of schools, pair match students on Mahalanobis distance
   # Initialize variables to store results
@@ -79,41 +73,33 @@ closeness_analysis <- function(output_df, student_data, grouping_var, measures =
   L2_distances <- c()
   
   # For each matched group of schools
-  unique_match_groups <- unique(matched_groups$match_group)
+  unique_match_groups <- unique(matched_schools$match_group)
   
   for (group in unique_match_groups) {
     # Get the treated and control schools in this matched group
-    schools_in_group <- matched_groups %>%
+    schools_in_group <- matched_schools %>%
       filter(match_group == group)
     
     treated_school <- schools_in_group$school[schools_in_group$treatment_status == "treated"]
     control_school <- schools_in_group$school[schools_in_group$treatment_status == "control"]
     
     # Extract students from each school
+    print(colnames(student_data))
+    print(group)
     students_treated <- student_data %>%
-      filter(.data[[grouping_var]] == treated_school & Treatment == 1) %>%
+      filter(schoolid_nces_enroll == treated_school) %>%
       select(all_of(unit_vars))
     
     students_control <- student_data %>%
-      filter(.data[[grouping_var]] == control_school & Treatment == 0) %>%
+      filter(schoolid_nces_enroll == control_school) %>%
       select(all_of(unit_vars))
-    
-    # Check if both schools have students
-    if (nrow(students_treated) == 0 || nrow(students_control) == 0) {
-      next  # Skip if no students in either school
-    }
     
     # Combine data to calculate covariance matrix
     combined_students <- rbind(students_treated, students_control)
     cov_matrix <- cov(combined_students)
-    
-    # Handle singular covariance matrix
-    if (det(cov_matrix) == 0) {
-      cov_matrix_inv <- ginv(cov_matrix)
-    } else {
-      cov_matrix_inv <- solve(cov_matrix)
-    }
-    
+    print("cmatrix")
+    print(cov_matrix)
+
     # Compute Mahalanobis distance matrix between students
     distance_matrix <- proxy::dist(
       x = students_treated,
@@ -127,7 +113,6 @@ closeness_analysis <- function(output_df, student_data, grouping_var, measures =
     rownames(distance_matrix) <- paste0("T_", seq_len(nrow(students_treated)))
     colnames(distance_matrix) <- paste0("C_", seq_len(nrow(students_control)))
     
-    # Flatten the distance matrix into a vector for matching
     distance_vector <- as.vector(distance_matrix)
     names(distance_vector) <- paste0(rep(rownames(distance_matrix), times = ncol(distance_matrix)), "|",
                                      rep(colnames(distance_matrix), each = nrow(distance_matrix)))

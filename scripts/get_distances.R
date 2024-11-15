@@ -66,7 +66,6 @@ get_distances <- function(data, pairs_data, unit_preds, group_preds, unit_calipe
   # Pre-allocate columns
   pairs_data[, `:=`(bias = NA_real_, ess = NA_real_)]
   
-  # Apply distance_keele and assign directly
   results <- mapply(
     FUN = variance_measure,
     treatment_group = pairs_data$treatment_group,
