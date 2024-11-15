@@ -37,8 +37,8 @@ if(synthetic){
   cat("Preparing real data...\n")
   
   # Define parameters for data preparation
-  old_path <- "path/to/your/data.csv"
-  new_path <- "path/to/your/data.csv"
+  old_path <- "../data/2021_3_glmath_regression_ready.csv"
+  new_path <- "../data/2022_3_glmath_regression_ready.csv"
   S <- 100                          # Number of groups to sample
   proportion_treated <- 268/3605     # Example proportion
   
