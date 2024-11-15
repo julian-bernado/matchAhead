@@ -18,14 +18,27 @@ compare <- function(old_data,
                     num_cores = 1, 
                     max_rows_in_memory = 1500000, 
                     data_grouped = FALSE) {
+  
+  # Process new_data to compute total_pairs
+  processed_new_data <- assimilate_df(new_data, 
+                                      grouping = grouping, 
+                                      outcome = outcome, 
+                                      treatment = treatment)
+  
+  if(!data_grouped){
+    processed_new_data <- make_grouped(data = processed_new_data,
+                                       group_level = group_level,
+                                       unit_level = unit_level)
+  }
+  
   # Calculate the number of unique treatment and control groups
-  num_treatment_groups <- new_data %>%
+  num_treatment_groups <- processed_new_data %>%
     filter(Treatment == 1) %>%
     pull(Group) %>%
     unique() %>%
     length()
   
-  num_control_groups <- new_data %>%
+  num_control_groups <- processed_new_data %>%
     filter(Treatment == 0) %>%
     pull(Group) %>%
     unique() %>%
@@ -35,43 +48,57 @@ compare <- function(old_data,
   total_pairs <- num_treatment_groups * num_control_groups
   cat("Total number of pairs:", total_pairs, "\n")
   
-  # Time the execution of end_to_end_modular with use_keele = FALSE
-  cat("Running end_to_end (our version)...\n")
-  time_end_to_end <- system.time({
-    output_end_to_end <- end_to_end(
-      old_data = old_data,
-      new_data = new_data,
-      grouping = grouping,
-      group_level = group_level,
-      unit_level = unit_level,
-      outcome = outcome,
-      treatment = treatment,
-      num_cores = num_cores,
-      max_rows_in_memory = max_rows_in_memory,
-      use_keele = FALSE,
-      data_grouped = data_grouped
-    )
-  })["elapsed"]
-  cat("end_to_end (standard) completed in", time_end_to_end, "seconds.\n")
+  # Run end_to_end_modular with use_keele = FALSE
+  cat("Running end_to_end_modular (standard version)...\n")
+  output1 <- end_to_end_modular(
+    old_data = old_data,
+    new_data = new_data,
+    grouping = grouping,
+    group_level = group_level,
+    unit_level = unit_level,
+    outcome = outcome,
+    treatment = treatment,
+    num_cores = num_cores,
+    max_rows_in_memory = max_rows_in_memory,
+    use_keele = FALSE,
+    data_grouped = data_grouped
+  )
   
-  # Time the execution of end_to_end_modular with use_keele = TRUE
+  # Extract outputs and time taken
+  if (!is.null(output1$result_files)) {
+    output_end_to_end <- output1$result_files
+  } else {
+    output_end_to_end <- output1$distances
+  }
+  time_end_to_end <- output1$time_taken
+  
+  cat("end_to_end_modular (standard) completed get_distances in", time_end_to_end, "seconds.\n")
+  
+  # Run end_to_end_modular with use_keele = TRUE
   cat("Running end_to_end_modular (Keele version)...\n")
-  time_end_to_end_keele <- system.time({
-    output_end_to_end_keele <- end_to_end(
-      old_data = old_data,
-      new_data = new_data,
-      grouping = grouping,
-      group_level = group_level,
-      unit_level = unit_level,
-      outcome = outcome,
-      treatment = treatment,
-      num_cores = num_cores,
-      max_rows_in_memory = max_rows_in_memory,
-      use_keele = TRUE,
-      data_grouped = data_grouped
-    )
-  })["elapsed"]
-  cat("end_to_end (Keele) completed in", time_end_to_end_keele, "seconds.\n")
+  output2 <- end_to_end_modular(
+    old_data = old_data,
+    new_data = new_data,
+    grouping = grouping,
+    group_level = group_level,
+    unit_level = unit_level,
+    outcome = outcome,
+    treatment = treatment,
+    num_cores = num_cores,
+    max_rows_in_memory = max_rows_in_memory,
+    use_keele = TRUE,
+    data_grouped = data_grouped
+  )
+  
+  # Extract outputs and time taken
+  if (!is.null(output2$result_files)) {
+    output_end_to_end_keele <- output2$result_files
+  } else {
+    output_end_to_end_keele <- output2$distances
+  }
+  time_end_to_end_keele <- output2$time_taken
+  
+  cat("end_to_end_modular (Keele) completed get_distances_keele in", time_end_to_end_keele, "seconds.\n")
   
   # Calculate time per pair for each function
   time_per_pair_end_to_end <- as.numeric(time_end_to_end) / total_pairs

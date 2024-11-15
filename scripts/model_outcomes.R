@@ -1,10 +1,8 @@
 library(lme4)
 
-write_formula <- function(data, outcome = "Y", grouping = "Group"){
+write_formula <- function(data, outcome = "Y", grouping = "Group", group_level, unit_level){
   # Select covariates, excluding outcome and grouping columns
-  covars <- data %>%
-    select(-all_of(c(outcome, grouping))) %>%
-    names()
+  covars <- c(group_level, unit_level, paste0("avg_", unit_level))
   
   # Construct the left-hand side of the formula
   lhs_formula <- paste0(outcome, " ~ ", "(1 | ", grouping, ") + ")
@@ -16,7 +14,7 @@ write_formula <- function(data, outcome = "Y", grouping = "Group"){
   return(formula(paste0(lhs_formula, rhs_formula)))
 }
 
-model_outcomes <- function(data, outcome = "Y", grouping = "Group"){
+model_outcomes <- function(data, outcome = "Y", grouping = "Group", group_level, unit_level){
   mm_formula <- write_formula(data)
   return(lmer(formula = mm_formula,
               data = data))

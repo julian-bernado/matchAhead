@@ -82,37 +82,49 @@ get_predictions <- function(unit_model, new_df, new_group_df, use_keele){
 process_distances <- function(data, pairs_data, unit_preds, group_preds, unit_caliper, num_cores, use_keele){
   if (num_cores > 1) {
     if(use_keele){
-      distances <- parallel_get_distances_keele(data = data,
-                                                pairs_data = pairs_data,
-                                                unit_preds = unit_preds,
-                                                K = num_cores)
+      # Time parallel_get_distances_keele
+      time_taken <- system.time({
+        distances <- parallel_get_distances_keele(data = data,
+                                                  pairs_data = pairs_data,
+                                                  unit_preds = unit_preds,
+                                                  K = num_cores)
+      })["elapsed"]
     } else {
-      distances <- parallel_get_distances(data = data,
-                                          pairs_data = pairs_data,
-                                          unit_preds = unit_preds,
-                                          group_preds = group_preds,
-                                          unit_caliper = unit_caliper,
-                                          K = num_cores)
+      # Time parallel_get_distances
+      time_taken <- system.time({
+        distances <- parallel_get_distances(data = data,
+                                            pairs_data = pairs_data,
+                                            unit_preds = unit_preds,
+                                            group_preds = group_preds,
+                                            unit_caliper = unit_caliper,
+                                            K = num_cores)
+      })["elapsed"]
     }
   } else {
     if(use_keele){
-      distances <- get_distances_keele(data = data,
-                                       pairs_data = pairs_data,
-                                       unit_preds = unit_preds)
+      # Time get_distances_keele
+      time_taken <- system.time({
+        distances <- get_distances_keele(data = data,
+                                         pairs_data = pairs_data,
+                                         unit_preds = unit_preds)
+      })["elapsed"]
     } else {
-      distances <- get_distances(data = data,
-                                 pairs_data = pairs_data,
-                                 unit_preds = unit_preds,
-                                 group_preds = group_preds,
-                                 unit_caliper = unit_caliper)
+      # Time get_distances
+      time_taken <- system.time({
+        distances <- get_distances(data = data,
+                                   pairs_data = pairs_data,
+                                   unit_preds = unit_preds,
+                                   group_preds = group_preds,
+                                   unit_caliper = unit_caliper)
+      })["elapsed"]
     }
   }
-  return(distances)
+  return(list(distances = distances, time_taken = time_taken))
 }
 
 # Merged and modularized end_to_end function with data_grouped argument
 end_to_end <- function(old_data, new_data, grouping, group_level, unit_level, outcome, treatment, num_cores = 1, max_rows_in_memory = 1500000, use_keele = FALSE, data_grouped = FALSE){
-  # Process data with data_grouped option
+  # Process data
   data_list <- process_data(old_data, new_data, grouping, group_level, unit_level, outcome, treatment, data_grouped)
   old_df <- data_list$old_df
   new_df <- data_list$new_df
@@ -150,6 +162,8 @@ end_to_end <- function(old_data, new_data, grouping, group_level, unit_level, ou
   unit_preds <- preds$unit_preds
   group_preds <- preds$group_preds
   
+  total_time_taken <- 0  # Initialize total time taken for distance calculations
+  
   if (total_pairs > max_rows_in_memory) {
     # Process in batches and write to disk
     cat("Total pairs exceed max_rows_in_memory. Processing in batches and writing to disk.\n")
@@ -175,14 +189,17 @@ end_to_end <- function(old_data, new_data, grouping, group_level, unit_level, ou
         sorted = FALSE
       )
       
-      # Process distances
-      chunk_distances <- process_distances(data = new_df,
-                                           pairs_data = pairs_dt,
-                                           unit_preds = unit_preds,
-                                           group_preds = group_preds,
-                                           unit_caliper = unit_caliper,
-                                           num_cores = num_cores,
-                                           use_keele = use_keele)
+      # Process distances and time the execution
+      result <- process_distances(data = new_df,
+                                  pairs_data = pairs_dt,
+                                  unit_preds = unit_preds,
+                                  group_preds = group_preds,
+                                  unit_caliper = unit_caliper,
+                                  num_cores = num_cores,
+                                  use_keele = use_keele)
+      chunk_distances <- result$distances
+      time_taken <- result$time_taken
+      total_time_taken <- total_time_taken + time_taken  # Accumulate time taken
       
       # Write chunk to disk
       file_name <- if(use_keele) {
@@ -194,22 +211,26 @@ end_to_end <- function(old_data, new_data, grouping, group_level, unit_level, ou
       result_files[[i]] <- file_name
     }
     
-    # Return list of file paths
-    return(result_files)
+    # Return list of file paths and total_time_taken
+    return(list(result_files = result_files, time_taken = total_time_taken))
     
   } else {
     # Process in memory
     cat("Total pairs within memory limit. Processing in memory.\n")
     
-    # Process distances
-    final_distances <- process_distances(data = new_df,
-                                         pairs_data = pairs_dt,
-                                         unit_preds = unit_preds,
-                                         group_preds = group_preds,
-                                         unit_caliper = unit_caliper,
-                                         num_cores = num_cores,
-                                         use_keele = use_keele)
+    # Process distances and time the execution
+    result <- process_distances(data = new_df,
+                                pairs_data = pairs_dt,
+                                unit_preds = unit_preds,
+                                group_preds = group_preds,
+                                unit_caliper = unit_caliper,
+                                num_cores = num_cores,
+                                use_keele = use_keele)
+    final_distances <- result$distances
+    time_taken <- result$time_taken
+    total_time_taken <- time_taken  # Total time is the time taken
     
-    return(final_distances)
+    # Return final distances and total_time_taken
+    return(list(distances = final_distances, time_taken = total_time_taken))
   }
 }
