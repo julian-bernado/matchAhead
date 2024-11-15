@@ -124,7 +124,7 @@ end_to_end <- function(old_data, new_data, grouping, group_level, unit_level, ou
   new_df <- data_list$new_df
   
   # Create model
-  unit_model <- model_outcomes(data = old_df)
+  unit_model <- model_outcomes(data = old_df, group_level = group_level, unit_level = unit_level)
   
   # Calculate caliper if not using Keele method
   if(!use_keele){
