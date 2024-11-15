@@ -52,6 +52,7 @@ closeness_analysis <- function(output_df, student_data, grouping_var, measures =
   # Perform pair matching on schools
   print(dimnames(school_distance_matrix))
   school_match <- pairmatch(school_distance_matrix, remove.unmatchables = TRUE) 
+  print(school_match)
   
   # Extract matched pairs of schools
   matched_schools <- data.frame(
@@ -60,6 +61,7 @@ closeness_analysis <- function(output_df, student_data, grouping_var, measures =
   ) %>%
     filter(!is.na(match_group))
 
+  print(matched_schools)
   
   # Separate treated and control schools in matched pairs
   matched_schools <- matched_schools %>%
@@ -167,11 +169,11 @@ closeness_analysis <- function(output_df, student_data, grouping_var, measures =
 }
 
 # Example usage:
- output_df <- read_csv("outputs/keele_output.csv")
+ output_df <- read_csv("outputs/our_output.csv")
  student_data <- read_csv("../data/2022_3_glmath_regression_ready.csv")
  unit_vars <- c("gender", "specialed", "lep", "raceth_asian",
                 "raceth_black", "raceth_hispanic", "raceth_native",
                 "raceth_hpi", "raceth_unknown")
- results <- closeness_analysis(output_df, student_data, grouping_var = "schoolid_nces_enroll", measures = c("bias", "ess"), unit_vars = unit_vars)
- save(results, file = "our_output.RData")
- print(results)
+ keele_results <- closeness_analysis(output_df, student_data, grouping_var = "schoolid_nces_enroll", measures = c("bias", "ess"), unit_vars = unit_vars)
+ save(keele_results, file = "keele_output.RData")
+ print(keele_results)
