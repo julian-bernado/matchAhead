@@ -11,7 +11,7 @@ source("comparison/prep_data.R")
 source("comparison/compare.R")
 
 # Define the synthetic data flag
-synthetic <- TRUE  # Set to FALSE to use real/prepared data
+synthetic <- FALSE  # Set to FALSE to use real/prepared data
 
 if(synthetic){
   cat("Generating synthetic data...\n")
@@ -53,7 +53,7 @@ if(synthetic){
 
 # Define parameters for the compare function
 grouping <- "Group"                     # The grouping variable name
-group_level <- "Group"                  # The group level (same as grouping in this context)
+group_level <- c()                  # The group level (same as grouping in this context)
 unit_level <- paste0("X", 1:p)         # Assuming unit_level corresponds to covariates
 outcome <- "Y"                           # Outcome variable name
 treatment <- "Treatment"                 # Treatment variable name
