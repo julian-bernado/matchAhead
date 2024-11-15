@@ -9,13 +9,7 @@ source("scripts/maxflow.R")
 
 # Data assimilation function remains the same
 assimilate_df <- function(data, grouping, outcome, treatment){
-  if(("Group" %in% colnames(data)) && grouping != "Group"){
-    stop("Must not have any column named Group unless it is the grouping variable")
-  }
-  if(("Y" %in% colnames(data)) && outcome != "Y"){
-    stop("Must not have any column named Y unless it is the outcome variable")
-  }
-  
+  print(colnames(data))
   data <- data %>%
     rename(Group = !!sym(grouping)) %>%
     rename(Y = !!sym(outcome)) %>%

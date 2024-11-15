@@ -10,8 +10,6 @@ prep_data <- function(path, S, proportion_treated = 268/3605){
   selected_schools <- sample(schools, size = S)
   df <- df %>%
     filter(schoolid_nces_enroll %in% selected_schools) %>%
-    assign_treatment(Nt = floor(S * proportion_treated), grouping = "schoolid_nces_enroll") %>%
-    assimilate_df(grouping = "schoolid_nces_enroll",
-                  outcome = "glmath_scr")
+    assign_treatment(Nt = max(1, floor(S * proportion_treated)), grouping = "schoolid_nces_enroll")
   return(df)
 }

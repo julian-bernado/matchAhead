@@ -34,19 +34,21 @@ compare <- function(old_data,
   # Calculate the number of unique treatment and control groups
   num_treatment_groups <- processed_new_data %>%
     filter(Treatment == 1) %>%
-    pull(Group) %>%
+    pull(sym(grouping)) %>%
     unique() %>%
     length()
   
   num_control_groups <- processed_new_data %>%
     filter(Treatment == 0) %>%
-    pull(Group) %>%
+    pull(sym(grouping)) %>%
     unique() %>%
     length()
   
   # Compute total_pairs
   total_pairs <- num_treatment_groups * num_control_groups
   cat("Total number of pairs:", total_pairs, "\n")
+  print(dim(old_data))
+  print(dim(new_data))
   
   # Run end_to_end_modular with use_keele = FALSE
   cat("Running end_to_end_modular (standard version)...\n")
