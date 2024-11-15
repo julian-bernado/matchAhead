@@ -54,14 +54,14 @@ if(synthetic){
 # Define parameters for the compare function
 grouping <- "Group"                     # The grouping variable name
 group_level <- c()                  # The group level (same as grouping in this context)
-unit_level <- paste0("X", 1:p)         # Assuming unit_level corresponds to covariates
-outcome <- "Y"                           # Outcome variable name
+unit_level <- paste0("gender","specialed","lep","raceth_asian","raceth_black","raceth_hispanic","raceth_native","raceth_hpi","raceth_unknown","avg_gender","avg_lep","avg_specialed","avg_raceth_asian","avg_raceth_black","avg_raceth_hispanic","avg_raceth_native","avg_raceth_hpi", "avg_raceth_unknown")         # Assuming unit_level corresponds to covariates
+outcome <- "glmath_scr"                           # Outcome variable name
 treatment <- "Treatment"                 # Treatment variable name
 
 # Define additional parameters
 num_cores <- 1                           # Number of cores for parallel processing
 max_rows_in_memory <- 1500000            # Maximum rows to hold in memory
-data_grouped <- FALSE                    # Set to TRUE if data is already grouped
+data_grouped <- TRUE                    # Set to TRUE if data is already grouped
 
 # Run the compare function
 cat("Running compare function...\n")
