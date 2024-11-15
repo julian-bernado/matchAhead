@@ -40,7 +40,7 @@ if(synthetic){
   # Define parameters for data preparation
   old_path <- "../data/2021_3_glmath_regression_ready.csv"
   new_path <- "../data/2022_3_glmath_regression_ready.csv"
-  S <- 50                          # Number of groups to sample
+  S <- 1200                          # Number of groups to sample
   proportion_treated <- 268/3605     # Example proportion
   
   # Prepare old_data
