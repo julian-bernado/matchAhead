@@ -15,7 +15,7 @@ write_formula <- function(data, outcome = "Y", grouping = "Group", group_level, 
 }
 
 model_outcomes <- function(data, outcome = "Y", grouping = "Group", group_level, unit_level){
-  mm_formula <- write_formula(data)
+  mm_formula <- write_formula(data, group_level = group_level, unit_level = unit_level)
   return(lmer(formula = mm_formula,
               data = data))
 }

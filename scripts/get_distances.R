@@ -9,7 +9,7 @@ split_df <- function(df, K) {
 }
 
 bias_distance <- function(group1, group2, group_preds){
-  return(abs(group_preds[group1] - group_preds[group2]))
+  return(abs(group_preds[as.character(group1)] - group_preds[as.character(group2)]))
 }
 
 calipered_dist <- function(x, y, caliper){
@@ -39,6 +39,11 @@ variance_measure <- function(treatment_group, control_group, data, group_preds, 
   num_w_matches <- sum(rowSums(!is.na(distance_matrix)) > 0)
   # Output
   bias = bias_distance(treatment_group, control_group, group_preds)
+  if(is.na(bias)){
+	print(treatment_group)
+  	print(control_group)
+	print(group_preds)
+  }
   ess <- NA
   if(num_w_matches < Nt){
     if(num_w_matches == 0){

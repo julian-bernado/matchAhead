@@ -39,7 +39,7 @@ if(synthetic){
   # Define parameters for data preparation
   old_path <- "../data/2021_3_glmath_regression_ready.csv"
   new_path <- "../data/2022_3_glmath_regression_ready.csv"
-  S <- 100                          # Number of groups to sample
+  S <- 50                          # Number of groups to sample
   proportion_treated <- 268/3605     # Example proportion
   
   # Prepare old_data
@@ -54,7 +54,7 @@ if(synthetic){
 # Define parameters for the compare function
 grouping <- "schoolid_nces_enroll"                     # The grouping variable name
 group_level <- c()                  # The group level (same as grouping in this context)
-unit_level <- paste0("gender","specialed","lep","raceth_asian","raceth_black","raceth_hispanic","raceth_native","raceth_hpi","raceth_unknown","avg_gender","avg_lep","avg_specialed","avg_raceth_asian","avg_raceth_black","avg_raceth_hispanic","avg_raceth_native","avg_raceth_hpi", "avg_raceth_unknown")         # Assuming unit_level corresponds to covariates
+unit_level <- c("gender","specialed","lep","raceth_asian","raceth_black","raceth_hispanic","raceth_native","raceth_hpi","raceth_unknown")
 outcome <- "glmath_scr"                           # Outcome variable name
 treatment <- "Treatment"                 # Treatment variable name
 

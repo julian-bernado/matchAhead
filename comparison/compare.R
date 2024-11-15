@@ -34,13 +34,13 @@ compare <- function(old_data,
   # Calculate the number of unique treatment and control groups
   num_treatment_groups <- processed_new_data %>%
     filter(Treatment == 1) %>%
-    pull(sym(grouping)) %>%
+    pull(Group) %>%
     unique() %>%
     length()
   
   num_control_groups <- processed_new_data %>%
     filter(Treatment == 0) %>%
-    pull(sym(grouping)) %>%
+    pull(Group) %>%
     unique() %>%
     length()
   
@@ -52,7 +52,7 @@ compare <- function(old_data,
   
   # Run end_to_end_modular with use_keele = FALSE
   cat("Running end_to_end_modular (standard version)...\n")
-  output1 <- end_to_end_modular(
+  output1 <- end_to_end(
     old_data = old_data,
     new_data = new_data,
     grouping = grouping,
@@ -78,7 +78,7 @@ compare <- function(old_data,
   
   # Run end_to_end_modular with use_keele = TRUE
   cat("Running end_to_end_modular (Keele version)...\n")
-  output2 <- end_to_end_modular(
+  output2 <- end_to_end(
     old_data = old_data,
     new_data = new_data,
     grouping = grouping,
