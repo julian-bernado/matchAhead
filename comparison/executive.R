@@ -1,4 +1,5 @@
 # executive.R
+set.seed(2024)
 
 # Load necessary libraries
 library(dplyr)
@@ -106,3 +107,9 @@ display_first_100(comparison_result$output_end_to_end_keele, "output_end_to_end_
 cat("\nTime per pair for end_to_end (standard):", comparison_result$time_end_to_end_per_pair, "seconds.\n")
 cat("Time per pair for end_to_end_keele:", comparison_result$time_end_to_end_keele_per_pair, "seconds.\n")
 cat("Fraction of Time:", 100*(comparison_result$time_end_to_end_per_pair/comparison_result$time_end_to_end_keele_per_pair), "%")
+
+# Write results
+time_df <- data.frame(our_time = comparison_result$time_end_to_end_per_pair, keele_time = comparison_result$time_end_to_end_keele_per_pair)
+write_csv(comparison_result$output_end_to_end, "outputs/keele_output.csv")
+write_csv(comparison_result$output_end_to_end_keele,"outputs/our_output.csv")
+write_csv(time_df, "outputs/time_comparison.csv")
