@@ -5,6 +5,7 @@ set.seed(2024)
 library(dplyr)
 library(data.table)
 library(readr)
+library(Rcpp)
 
 # Source required scripts
 source("scripts/generate_data.R")
@@ -38,8 +39,8 @@ if(synthetic){
   cat("Preparing real data...\n")
   
   # Define parameters for data preparation
-  old_path <- "../data/2021_3_glmath_regression_ready.csv"
-  new_path <- "../data/2022_3_glmath_regression_ready.csv"
+  old_path <- "data/2021_3_glmath_df.csv"
+  new_path <- "data/2022_3_glmath_df.csv"
   S <- 1200                          # Number of groups to sample
   proportion_treated <- 268/3605     # Example proportion
   
@@ -53,10 +54,11 @@ if(synthetic){
 }
 
 # Define parameters for the compare function
-grouping <- "schoolid_nces_enroll"                     # The grouping variable name
+grouping <- "schoolid_state_enroll_p0"                     # The grouping variable name
 group_level <- c()                  # The group level (same as grouping in this context)
-unit_level <- c("gender","specialed","lep","raceth_asian","raceth_black","raceth_hispanic","raceth_native","raceth_hpi","raceth_unknown")
-outcome <- "glmath_scr"                           # Outcome variable name
+unit_level <- c("gender_2","specialed_ever","lep_ever",
+                paste0("raceth_", 1:6))
+outcome <- "glmath_scr_p0"                           # Outcome variable name
 treatment <- "Treatment"                 # Treatment variable name
 
 # Define additional parameters
@@ -110,6 +112,6 @@ cat("Fraction of Time:", 100*(comparison_result$time_end_to_end_per_pair/compari
 
 # Write results
 time_df <- data.frame(our_time = comparison_result$time_end_to_end_per_pair, keele_time = comparison_result$time_end_to_end_keele_per_pair)
-write_csv(comparison_result$output_end_to_end, "outputs/keele_output.csv")
-write_csv(comparison_result$output_end_to_end_keele,"outputs/our_output.csv")
+write_csv(comparison_result$output_end_to_end_keele, "outputs/keele_output.csv")
+write_csv(comparison_result$output_end_to_end,"outputs/our_output.csv")
 write_csv(time_df, "outputs/time_comparison.csv")

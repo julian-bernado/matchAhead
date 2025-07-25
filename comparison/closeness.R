@@ -12,7 +12,7 @@ library(proxy)   # For distance calculations
 closeness_analysis <- function(output_df, student_data, grouping_var, measures = c("bias", "ess"), unit_vars){
   # output_df: DataFrame containing the pairs of schools and their measures (e.g., bias, ess)
   # student_data: DataFrame containing student-level data with grouping variable and treatment status
-  # grouping_var: String, name of the grouping variable (e.g., "Group", "schoolid_nces_enroll")
+  # grouping_var: String, name of the grouping variable (e.g., "Group", "schoolid_state_enroll_p0")
   # measures: Vector of measure names to use for school matching (e.g., c("bias", "ess"))
   # unit_vars: Vector of student-level variables to use for matching
   
@@ -86,12 +86,12 @@ closeness_analysis <- function(output_df, student_data, grouping_var, measures =
     
     # Extract students from each school
     students_treated <- student_data %>%
-      filter(schoolid_nces_enroll == treated_school) %>%
-      select(all_of(unit_vars))
+      filter(schoolid_state_enroll_p0 == treated_school) %>%
+      dplyr::select(all_of(unit_vars))
     
     students_control <- student_data %>%
-      filter(schoolid_nces_enroll == control_school) %>%
-      select(all_of(unit_vars))
+      filter(schoolid_state_enroll_p0 == control_school) %>%
+      dplyr::select(all_of(unit_vars))
     
     # Combine data to calculate covariance matrix
     combined_students <- rbind(students_treated, students_control)
@@ -167,11 +167,15 @@ closeness_analysis <- function(output_df, student_data, grouping_var, measures =
 }
 
 # Example usage:
- output_df <- read_csv("outputs/keele_output.csv")
- student_data <- read_csv("../data/2022_3_glmath_regression_ready.csv")
- unit_vars <- c("gender", "specialed", "lep", "raceth_asian",
-                "raceth_black", "raceth_hispanic", "raceth_native",
-                "raceth_hpi", "raceth_unknown")
- results <- closeness_analysis(output_df, student_data, grouping_var = "schoolid_nces_enroll", measures = c("bias", "ess"), unit_vars = unit_vars)
- save(results, file = "our_output.RData")
- print(results)
+output_df <- read_csv("outputs/keele_output.csv")
+student_data <- read_csv("data/2022_3_glmath_df.csv")
+unit_vars <- c("gender_2","specialed_ever","lep_ever",
+               paste0("raceth_", 1:6))
+results <- closeness_analysis(output_df, student_data, grouping_var = "schoolid_state_enroll_p0", measures = c("bias", "ess"), unit_vars = unit_vars)
+save(results, file = "keele_output.RData")
+print(results)
+
+output_df <- read_csv("outputs/our_output.csv")
+results <- closeness_analysis(output_df, student_data, grouping_var = "schoolid_state_enroll_p0", measures = c("bias", "ess"), unit_vars = unit_vars)
+save(results, file = "our_output.RData")
+print(results)
