@@ -128,7 +128,7 @@ end_to_end <- function(old_data, new_data, grouping, group_level, unit_level, ou
   
   # Calculate caliper if not using Keele method
   if(!use_keele){
-    unit_caliper <- calc_caliper(model = unit_model)
+    unit_caliper <- calc_caliper(model = unit_model)[1,1]
     print("caliper")
     print(unit_caliper)
   } else {
@@ -155,6 +155,10 @@ end_to_end <- function(old_data, new_data, grouping, group_level, unit_level, ou
   preds <- get_predictions(unit_model, new_df, new_group_df, use_keele)
   unit_preds <- preds$unit_preds
   group_preds <- preds$group_preds
+  # Make group_preds a data.table for speed purposes when calculating bias
+  group_preds <- data.table("school_id" = names(group_preds), "school_score" = group_preds)
+  # Make unit_preds a data.table for speed purposes when calculating ess
+  unit_preds <- data.table("school_id" = new_df$Group, "student_score" = unit_preds)
   
   total_time_taken <- 0  # Initialize total time taken for distance calculations
   

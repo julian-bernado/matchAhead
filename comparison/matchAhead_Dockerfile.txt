@@ -1,0 +1,12 @@
+FROM rocker/rstudio:4.3.1
+
+RUN mkdir -m 777 /home/rstudio/bernado
+RUN mkdir -m 777 /home/rstudio/bernado/scripts
+RUN mkdir -m 777 /home/rstudio/bernado/data
+RUN . /etc/environment && R -e "install.packages(c('data.table', 'dplyr', 'readr', 'optmatch', 'lme4', 'future.apply', 'Rcpp', 'proxy'))"
+COPY --chmod=444 bernado/data/2021_3_glmath_df.csv /home/rstudio/bernado/data/
+COPY --chmod=444 bernado/data/2022_3_glmath_df.csv /home/rstudio/bernado/data/
+
+RUN chown -HR 1000:1000 /home/rstudio/
+
+CMD ["/init"]

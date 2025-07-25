@@ -9,17 +9,50 @@ split_df <- function(df, K) {
 }
 
 bias_distance <- function(group1, group2, group_preds){
-  return(abs(group_preds[as.character(group1)] - group_preds[as.character(group2)]))
+  score1 <- group_preds[school_id == group1, school_score]
+  score2 <- group_preds[school_id == group2, school_score]
+  abs(score1 - score2)
 }
 
-calipered_dist <- function(x, y, caliper){
-  caliper <- as.numeric(caliper)
-  if(abs(x-y) < caliper){
-    return(0)
-  } else{
-    return(NA)
+# Optimized `calipered_dist_matrix` function, implemented in C++
+cppFunction('
+NumericMatrix calipered_dist_matrix(NumericVector ts,
+                                    NumericVector cs,
+                                    double caliper) {
+  int n = ts.size();
+  int m = cs.size();
+  NumericMatrix out(n, m);
+  
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+      if (fabs(ts[i] - cs[j]) < caliper) {
+        out(i, j) = 0;
+      } else {
+        out(i, j) = NA_REAL;
+      }
+    }
   }
+  return out;
 }
+')
+
+
+# Optimized `dist_mat` function, implemented in C++
+cppFunction('
+NumericMatrix dist_mat(NumericVector ts,
+                       NumericVector cs) {
+  int n = ts.size();
+  int m = cs.size();
+  NumericMatrix out(n, m);
+  
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+        out(i, j) = fabs(ts[i] - cs[j]);
+    }
+  }
+  return out;
+}
+')
 
 variance_measure <- function(treatment_group, control_group, data, group_preds, unit_preds, unit_caliper){
   # Add unit_preds to the dataframe
@@ -27,14 +60,13 @@ variance_measure <- function(treatment_group, control_group, data, group_preds, 
   df_wscores$unit_preds <- unit_preds
   
   # Extract predictions for each group
-  group1_vals <- df_wscores$unit_preds[df_wscores$Group == treatment_group]
-  group2_vals <- df_wscores$unit_preds[df_wscores$Group == control_group]
-  
+  group1_vals <- unit_preds[school_id == treatment_group, student_score]
+  group2_vals <- unit_preds[school_id == control_group, student_score]
   Nt <- length(group1_vals)
   
   # Compute distance matrix with calipers
-  distance_matrix <- outer(group1_vals, group2_vals, 
-                           Vectorize(function(x, y) calipered_dist(x, y, caliper = unit_caliper)))
+  distance_matrix <- calipered_dist_matrix(group1_vals, group2_vals, unit_caliper)
+  
   # Count valid matches
   num_w_matches <- sum(rowSums(!is.na(distance_matrix)) > 0)
   # Output
@@ -45,16 +77,19 @@ variance_measure <- function(treatment_group, control_group, data, group_preds, 
 	print(group_preds)
   }
   ess <- NA
-  if(num_w_matches < Nt){
-    if(num_w_matches == 0){
-      ess <- Inf
-    } else{
-      ess <- Nt / num_w_matches
-    }
-  } else{
-    mc <- max_controls(distance_matrix, max.controls = 1)
-    ess <- 1/mc
-  }
+  if(num_w_matches == 0){
+    ess <- Inf
+  } 
+  # if(num_w_matches < Nt){
+  #   if(num_w_matches == 0){
+  #     ess <- Inf
+  #   } else{
+  #     ess <- Nt / num_w_matches
+  #   }
+  # } else{
+  mc <- max_controls(distance_matrix, max.controls = 1)
+  ess <- 1/mc
+  # }
   
   # Output Matrix
   output <- matrix(c(bias, ess), nrow = 2)
@@ -116,13 +151,10 @@ parallel_get_distances <- function(data, pairs_data, unit_preds, group_preds, un
 # KEELE CODE
 
 distance_keele <- function(treatment_group, control_group, unit_preds, data){
-  # Add unit_preds to the dataframe
-  df_wscores <- data
-  df_wscores$unit_preds <- unit_preds
   
   # Extract predictions for each group
-  group1_vals <- df_wscores$unit_preds[df_wscores$Group == treatment_group]
-  group2_vals <- df_wscores$unit_preds[df_wscores$Group == control_group]
+  group1_vals <- unit_preds[school_id == treatment_group, student_score]
+  group2_vals <- unit_preds[school_id == control_group, student_score]
   Nt <- length(group1_vals)
   Nc <- length(group2_vals)
   names(group1_vals) <- 1:Nt
@@ -131,9 +163,8 @@ distance_keele <- function(treatment_group, control_group, unit_preds, data){
   total_vals <- matrix(c(group1_vals, group2_vals), ncol = 1)
   rownames(total_vals) <- 1:(Nt+Nc)
   
-  # Compute distance matrix with caliper
-  distance_matrix <- outer(group1_vals, group2_vals, 
-                           Vectorize(function(x, y) abs(x-y)))
+  # Compute distance matrix
+  distance_matrix <- dist_mat(group1_vals, group2_vals)
   rownames(distance_matrix) <- 1:Nt
   colnames(distance_matrix) <- (Nt+1):(Nt+Nc)
   
@@ -148,7 +179,7 @@ distance_keele <- function(treatment_group, control_group, unit_preds, data){
   standardized_difference <- abs((mean(matched_treated) - mean(matched_controls))/pooled_sd)
   
   # Output Matrix
-  output <- matrix(c(standardized_difference, 1/min(Nt, Nc)), nrow = 2)
+  output <- matrix(c(standardized_difference, 1/length(matched_treated)), nrow = 2)
   
   return(output)
 }

@@ -5,11 +5,11 @@ source("scripts/generate_data.R")
 source("scripts/end_to_end.R")
 
 prep_data <- function(path, S, proportion_treated = 268/3605){
-  df <- read_csv(path) %>% select(-any_of(c("studentid_state_enroll")))
-  schools <- df %>% pull(schoolid_nces_enroll) %>% unique()
+  df <- read_csv(path) %>% dplyr::select(-any_of(c("studentid_state_enroll")))
+  schools <- df %>% pull(schoolid_state_enroll_p0) %>% unique()
   selected_schools <- sample(schools, size = S)
   df <- df %>%
-    filter(schoolid_nces_enroll %in% selected_schools) %>%
-    assign_treatment(Nt = max(1, floor(S * proportion_treated)), grouping = "schoolid_nces_enroll")
+    filter(schoolid_state_enroll_p0 %in% selected_schools) %>%
+    assign_treatment(Nt = max(1, floor(S * proportion_treated)), grouping = "schoolid_state_enroll_p0")
   return(df)
 }
