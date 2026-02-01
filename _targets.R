@@ -34,554 +34,217 @@ config <- list(
 
 # identity function that creates dependency without using the value
 wait_for <- function(data, gate = NULL) {
-
   data
 }
 
-# Build the pipeline with deep execution order
-# Want to do each pipeline all the way through rather than all step 1s, all step 2s, etc
-list(
-  # ############################################################################
-  # CHAIN 1: Grade 3, glmath (NO GATE - starts first)
-  # ############################################################################
-  tar_target(
-    cleaned_data_3_glmath_2019,
-    create_dataset("3", "glmath", "2019", sample_prop = config$sample_prop, seed = config$seed),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_3_glmath_2019, generate_data_prep_report(cleaned_data_3_glmath_2019, "3", "glmath", "2019"), format = "file"),
-  tar_target(
-    cleaned_data_3_glmath_2021,
-    create_dataset("3", "glmath", "2021", sample_prop = config$sample_prop, seed = config$seed),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_3_glmath_2021, generate_data_prep_report(cleaned_data_3_glmath_2021, "3", "glmath", "2021"), format = "file"),
-  tar_target(
-    model_3_glmath,
-    fit_prognostic_model(cleaned_data_3_glmath_2019, "3", "glmath"),
-    format = "rds"
-  ),
-  tar_target(report_model_3_glmath, generate_model_report(model_3_glmath, "3", "glmath"), format = "file"),
-  tar_target(caliper_3_glmath, calculate_caliper(model_3_glmath)),
-  tar_target(report_caliper_3_glmath, generate_caliper_report(caliper_3_glmath, model_3_glmath, "3", "glmath"), format = "file"),
-  tar_target(
-    student_preds_3_glmath,
-    make_student_predictions(model_3_glmath, cleaned_data_3_glmath_2021, "glmath"),
-    format = "rds"
-  ),
-  tar_target(
-    school_preds_3_glmath,
-    make_school_predictions(model_3_glmath, cleaned_data_3_glmath_2021)
-  ),
-  tar_target(report_predictions_3_glmath, generate_predictions_report(student_preds_3_glmath, school_preds_3_glmath, "3", "glmath"), format = "file"),
-  tar_target(
-    treatment_3_glmath,
-    assign_treatment_from_data(cleaned_data_3_glmath_2021, config$prop_treatment, config$seed)
-  ),
-  tar_target(report_treatment_3_glmath, generate_treatment_report(treatment_3_glmath, cleaned_data_3_glmath_2021, "3", "glmath"), format = "file"),
-  tar_target(
-    dist_matchahead_3_glmath,
-    compute_matchahead_distances(student_preds_3_glmath, treatment_3_glmath,
-                                  caliper_3_glmath, config$max_controls,
-                                  cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(
-    dist_pimentel_3_glmath,
-    compute_pimentel_distances(student_preds_3_glmath, treatment_3_glmath,
-                                config$max_controls, cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(report_distances_3_glmath, generate_distances_report(dist_matchahead_3_glmath, dist_pimentel_3_glmath, "3", "glmath"), format = "file"),
-  tar_target(
-    school_match_ma_3_glmath,
-    match_schools(dist_matchahead_3_glmath, treatment_3_glmath)
-  ),
-  tar_target(
-    school_match_pim_3_glmath,
-    match_schools(dist_pimentel_3_glmath, treatment_3_glmath)
-  ),
-  tar_target(report_school_matching_3_glmath, generate_school_matching_report(school_match_ma_3_glmath, school_match_pim_3_glmath, student_preds_3_glmath, "3", "glmath"), format = "file"),
-  tar_target(
-    student_match_ma_3_glmath,
-    match_all_students(school_match_ma_3_glmath, student_preds_3_glmath, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(
-    student_match_pim_3_glmath,
-    match_all_students(school_match_pim_3_glmath, student_preds_3_glmath, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(report_student_matching_3_glmath, generate_student_matching_report(student_match_ma_3_glmath, student_match_pim_3_glmath, student_preds_3_glmath, "3", "glmath"), format = "file"),
-  tar_target(
-    effect_ma_3_glmath,
-    estimate_treatment_effect_full(student_match_ma_3_glmath, cleaned_data_3_glmath_2021, "glmath")
-  ),
-  tar_target(
-    effect_pim_3_glmath,
-    estimate_treatment_effect_full(student_match_pim_3_glmath, cleaned_data_3_glmath_2021, "glmath")
-  ),
-  tar_target(report_effects_3_glmath, generate_effects_report(effect_ma_3_glmath, effect_pim_3_glmath, "3", "glmath"), format = "file"),
-  tar_target(
-    comparison_3_glmath,
-    generate_comparison(effect_ma_3_glmath, effect_pim_3_glmath,
-                        dist_matchahead_3_glmath, dist_pimentel_3_glmath,
-                        "3", "glmath")
-  ),
+# Factory function to generate all targets for one grade/subject chain
+make_chain <- function(grade, subject, gate = NULL, config) {
+  s <- paste0(grade, "_", subject)
 
-  # ############################################################################
-  # CHAIN 2: Grade 3, readng (GATE: comparison_3_glmath)
-  # ############################################################################
-  tar_target(
-    cleaned_data_3_readng_2019,
-    wait_for(create_dataset("3", "readng", "2019", sample_prop = config$sample_prop, seed = config$seed), comparison_3_glmath),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_3_readng_2019, generate_data_prep_report(cleaned_data_3_readng_2019, "3", "readng", "2019"), format = "file"),
-  tar_target(
-    cleaned_data_3_readng_2021,
-    wait_for(create_dataset("3", "readng", "2021", sample_prop = config$sample_prop, seed = config$seed), comparison_3_glmath),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_3_readng_2021, generate_data_prep_report(cleaned_data_3_readng_2021, "3", "readng", "2021"), format = "file"),
-  tar_target(
-    model_3_readng,
-    fit_prognostic_model(cleaned_data_3_readng_2019, "3", "readng"),
-    format = "rds"
-  ),
-  tar_target(report_model_3_readng, generate_model_report(model_3_readng, "3", "readng"), format = "file"),
-  tar_target(caliper_3_readng, calculate_caliper(model_3_readng)),
-  tar_target(report_caliper_3_readng, generate_caliper_report(caliper_3_readng, model_3_readng, "3", "readng"), format = "file"),
-  tar_target(
-    student_preds_3_readng,
-    make_student_predictions(model_3_readng, cleaned_data_3_readng_2021, "readng"),
-    format = "rds"
-  ),
-  tar_target(
-    school_preds_3_readng,
-    make_school_predictions(model_3_readng, cleaned_data_3_readng_2021)
-  ),
-  tar_target(report_predictions_3_readng, generate_predictions_report(student_preds_3_readng, school_preds_3_readng, "3", "readng"), format = "file"),
-  tar_target(
-    treatment_3_readng,
-    assign_treatment_from_data(cleaned_data_3_readng_2021, config$prop_treatment, config$seed)
-  ),
-  tar_target(report_treatment_3_readng, generate_treatment_report(treatment_3_readng, cleaned_data_3_readng_2021, "3", "readng"), format = "file"),
-  tar_target(
-    dist_matchahead_3_readng,
-    compute_matchahead_distances(student_preds_3_readng, treatment_3_readng,
-                                  caliper_3_readng, config$max_controls,
-                                  cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(
-    dist_pimentel_3_readng,
-    compute_pimentel_distances(student_preds_3_readng, treatment_3_readng,
-                                config$max_controls, cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(report_distances_3_readng, generate_distances_report(dist_matchahead_3_readng, dist_pimentel_3_readng, "3", "readng"), format = "file"),
-  tar_target(
-    school_match_ma_3_readng,
-    match_schools(dist_matchahead_3_readng, treatment_3_readng)
-  ),
-  tar_target(
-    school_match_pim_3_readng,
-    match_schools(dist_pimentel_3_readng, treatment_3_readng)
-  ),
-  tar_target(report_school_matching_3_readng, generate_school_matching_report(school_match_ma_3_readng, school_match_pim_3_readng, student_preds_3_readng, "3", "readng"), format = "file"),
-  tar_target(
-    student_match_ma_3_readng,
-    match_all_students(school_match_ma_3_readng, student_preds_3_readng, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(
-    student_match_pim_3_readng,
-    match_all_students(school_match_pim_3_readng, student_preds_3_readng, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(report_student_matching_3_readng, generate_student_matching_report(student_match_ma_3_readng, student_match_pim_3_readng, student_preds_3_readng, "3", "readng"), format = "file"),
-  tar_target(
-    effect_ma_3_readng,
-    estimate_treatment_effect_full(student_match_ma_3_readng, cleaned_data_3_readng_2021, "readng")
-  ),
-  tar_target(
-    effect_pim_3_readng,
-    estimate_treatment_effect_full(student_match_pim_3_readng, cleaned_data_3_readng_2021, "readng")
-  ),
-  tar_target(report_effects_3_readng, generate_effects_report(effect_ma_3_readng, effect_pim_3_readng, "3", "readng"), format = "file"),
-  tar_target(
-    comparison_3_readng,
-    generate_comparison(effect_ma_3_readng, effect_pim_3_readng,
-                        dist_matchahead_3_readng, dist_pimentel_3_readng,
-                        "3", "readng")
-  ),
+  # Helper to create symbol from name
+  sym <- function(name) as.symbol(name)
 
-  # ############################################################################
-  # CHAIN 3: Grade 4, glmath (GATE: comparison_3_readng)
-  # ############################################################################
-  tar_target(
-    cleaned_data_4_glmath_2019,
-    wait_for(create_dataset("4", "glmath", "2019", sample_prop = config$sample_prop, seed = config$seed), comparison_3_readng),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_4_glmath_2019, generate_data_prep_report(cleaned_data_4_glmath_2019, "4", "glmath", "2019"), format = "file"),
-  tar_target(
-    cleaned_data_4_glmath_2021,
-    wait_for(create_dataset("4", "glmath", "2021", sample_prop = config$sample_prop, seed = config$seed), comparison_3_readng),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_4_glmath_2021, generate_data_prep_report(cleaned_data_4_glmath_2021, "4", "glmath", "2021"), format = "file"),
-  tar_target(
-    model_4_glmath,
-    fit_prognostic_model(cleaned_data_4_glmath_2019, "4", "glmath"),
-    format = "rds"
-  ),
-  tar_target(report_model_4_glmath, generate_model_report(model_4_glmath, "4", "glmath"), format = "file"),
-  tar_target(caliper_4_glmath, calculate_caliper(model_4_glmath)),
-  tar_target(report_caliper_4_glmath, generate_caliper_report(caliper_4_glmath, model_4_glmath, "4", "glmath"), format = "file"),
-  tar_target(
-    student_preds_4_glmath,
-    make_student_predictions(model_4_glmath, cleaned_data_4_glmath_2021, "glmath"),
-    format = "rds"
-  ),
-  tar_target(
-    school_preds_4_glmath,
-    make_school_predictions(model_4_glmath, cleaned_data_4_glmath_2021)
-  ),
-  tar_target(report_predictions_4_glmath, generate_predictions_report(student_preds_4_glmath, school_preds_4_glmath, "4", "glmath"), format = "file"),
-  tar_target(
-    treatment_4_glmath,
-    assign_treatment_from_data(cleaned_data_4_glmath_2021, config$prop_treatment, config$seed)
-  ),
-  tar_target(report_treatment_4_glmath, generate_treatment_report(treatment_4_glmath, cleaned_data_4_glmath_2021, "4", "glmath"), format = "file"),
-  tar_target(
-    dist_matchahead_4_glmath,
-    compute_matchahead_distances(student_preds_4_glmath, treatment_4_glmath,
-                                  caliper_4_glmath, config$max_controls,
-                                  cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(
-    dist_pimentel_4_glmath,
-    compute_pimentel_distances(student_preds_4_glmath, treatment_4_glmath,
-                                config$max_controls, cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(report_distances_4_glmath, generate_distances_report(dist_matchahead_4_glmath, dist_pimentel_4_glmath, "4", "glmath"), format = "file"),
-  tar_target(
-    school_match_ma_4_glmath,
-    match_schools(dist_matchahead_4_glmath, treatment_4_glmath)
-  ),
-  tar_target(
-    school_match_pim_4_glmath,
-    match_schools(dist_pimentel_4_glmath, treatment_4_glmath)
-  ),
-  tar_target(report_school_matching_4_glmath, generate_school_matching_report(school_match_ma_4_glmath, school_match_pim_4_glmath, student_preds_4_glmath, "4", "glmath"), format = "file"),
-  tar_target(
-    student_match_ma_4_glmath,
-    match_all_students(school_match_ma_4_glmath, student_preds_4_glmath, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(
-    student_match_pim_4_glmath,
-    match_all_students(school_match_pim_4_glmath, student_preds_4_glmath, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(report_student_matching_4_glmath, generate_student_matching_report(student_match_ma_4_glmath, student_match_pim_4_glmath, student_preds_4_glmath, "4", "glmath"), format = "file"),
-  tar_target(
-    effect_ma_4_glmath,
-    estimate_treatment_effect_full(student_match_ma_4_glmath, cleaned_data_4_glmath_2021, "glmath")
-  ),
-  tar_target(
-    effect_pim_4_glmath,
-    estimate_treatment_effect_full(student_match_pim_4_glmath, cleaned_data_4_glmath_2021, "glmath")
-  ),
-  tar_target(report_effects_4_glmath, generate_effects_report(effect_ma_4_glmath, effect_pim_4_glmath, "4", "glmath"), format = "file"),
-  tar_target(
-    comparison_4_glmath,
-    generate_comparison(effect_ma_4_glmath, effect_pim_4_glmath,
-                        dist_matchahead_4_glmath, dist_pimentel_4_glmath,
-                        "4", "glmath")
-  ),
+  # Build gated command - wraps in wait_for() if gate provided
+  gated_cmd <- function(cmd, gate) {
+    if (is.null(gate)) cmd
+    else substitute(wait_for(cmd, gate), list(cmd = cmd, gate = sym(gate)))
+  }
 
-  # ############################################################################
-  # CHAIN 4: Grade 4, readng (GATE: comparison_4_glmath)
-  # ############################################################################
-  tar_target(
-    cleaned_data_4_readng_2019,
-    wait_for(create_dataset("4", "readng", "2019", sample_prop = config$sample_prop, seed = config$seed), comparison_4_glmath),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_4_readng_2019, generate_data_prep_report(cleaned_data_4_readng_2019, "4", "readng", "2019"), format = "file"),
-  tar_target(
-    cleaned_data_4_readng_2021,
-    wait_for(create_dataset("4", "readng", "2021", sample_prop = config$sample_prop, seed = config$seed), comparison_4_glmath),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_4_readng_2021, generate_data_prep_report(cleaned_data_4_readng_2021, "4", "readng", "2021"), format = "file"),
-  tar_target(
-    model_4_readng,
-    fit_prognostic_model(cleaned_data_4_readng_2019, "4", "readng"),
-    format = "rds"
-  ),
-  tar_target(report_model_4_readng, generate_model_report(model_4_readng, "4", "readng"), format = "file"),
-  tar_target(caliper_4_readng, calculate_caliper(model_4_readng)),
-  tar_target(report_caliper_4_readng, generate_caliper_report(caliper_4_readng, model_4_readng, "4", "readng"), format = "file"),
-  tar_target(
-    student_preds_4_readng,
-    make_student_predictions(model_4_readng, cleaned_data_4_readng_2021, "readng"),
-    format = "rds"
-  ),
-  tar_target(
-    school_preds_4_readng,
-    make_school_predictions(model_4_readng, cleaned_data_4_readng_2021)
-  ),
-  tar_target(report_predictions_4_readng, generate_predictions_report(student_preds_4_readng, school_preds_4_readng, "4", "readng"), format = "file"),
-  tar_target(
-    treatment_4_readng,
-    assign_treatment_from_data(cleaned_data_4_readng_2021, config$prop_treatment, config$seed)
-  ),
-  tar_target(report_treatment_4_readng, generate_treatment_report(treatment_4_readng, cleaned_data_4_readng_2021, "4", "readng"), format = "file"),
-  tar_target(
-    dist_matchahead_4_readng,
-    compute_matchahead_distances(student_preds_4_readng, treatment_4_readng,
-                                  caliper_4_readng, config$max_controls,
-                                  cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(
-    dist_pimentel_4_readng,
-    compute_pimentel_distances(student_preds_4_readng, treatment_4_readng,
-                                config$max_controls, cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(report_distances_4_readng, generate_distances_report(dist_matchahead_4_readng, dist_pimentel_4_readng, "4", "readng"), format = "file"),
-  tar_target(
-    school_match_ma_4_readng,
-    match_schools(dist_matchahead_4_readng, treatment_4_readng)
-  ),
-  tar_target(
-    school_match_pim_4_readng,
-    match_schools(dist_pimentel_4_readng, treatment_4_readng)
-  ),
-  tar_target(report_school_matching_4_readng, generate_school_matching_report(school_match_ma_4_readng, school_match_pim_4_readng, student_preds_4_readng, "4", "readng"), format = "file"),
-  tar_target(
-    student_match_ma_4_readng,
-    match_all_students(school_match_ma_4_readng, student_preds_4_readng, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(
-    student_match_pim_4_readng,
-    match_all_students(school_match_pim_4_readng, student_preds_4_readng, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(report_student_matching_4_readng, generate_student_matching_report(student_match_ma_4_readng, student_match_pim_4_readng, student_preds_4_readng, "4", "readng"), format = "file"),
-  tar_target(
-    effect_ma_4_readng,
-    estimate_treatment_effect_full(student_match_ma_4_readng, cleaned_data_4_readng_2021, "readng")
-  ),
-  tar_target(
-    effect_pim_4_readng,
-    estimate_treatment_effect_full(student_match_pim_4_readng, cleaned_data_4_readng_2021, "readng")
-  ),
-  tar_target(report_effects_4_readng, generate_effects_report(effect_ma_4_readng, effect_pim_4_readng, "4", "readng"), format = "file"),
-  tar_target(
-    comparison_4_readng,
-    generate_comparison(effect_ma_4_readng, effect_pim_4_readng,
-                        dist_matchahead_4_readng, dist_pimentel_4_readng,
-                        "4", "readng")
-  ),
+  list(
+    tar_target_raw(
+      paste0("cleaned_data_", s, "_2019"),
+      gated_cmd(
+        substitute(create_dataset(g, subj, "2019", sample_prop = config$sample_prop, seed = config$seed),
+                   list(g = grade, subj = subject)),
+        gate
+      ),
+      format = "rds"
+    ),
+    tar_target_raw(
+      paste0("report_data_prep_", s, "_2019"),
+      substitute(generate_data_prep_report(data, g, subj, "2019"),
+                 list(data = sym(paste0("cleaned_data_", s, "_2019")), g = grade, subj = subject)),
+      format = "file"
+    ),
+    tar_target_raw(
+      paste0("cleaned_data_", s, "_2021"),
+      gated_cmd(
+        substitute(create_dataset(g, subj, "2021", sample_prop = config$sample_prop, seed = config$seed),
+                   list(g = grade, subj = subject)),
+        gate
+      ),
+      format = "rds"
+    ),
+    tar_target_raw(
+      paste0("report_data_prep_", s, "_2021"),
+      substitute(generate_data_prep_report(data, g, subj, "2021"),
+                 list(data = sym(paste0("cleaned_data_", s, "_2021")), g = grade, subj = subject)),
+      format = "file"
+    ),
+    tar_target_raw(
+      paste0("model_", s),
+      substitute(fit_prognostic_model(data, g, subj),
+                 list(data = sym(paste0("cleaned_data_", s, "_2019")), g = grade, subj = subject)),
+      format = "rds"
+    ),
+    tar_target_raw(
+      paste0("report_model_", s),
+      substitute(generate_model_report(model, g, subj),
+                 list(model = sym(paste0("model_", s)), g = grade, subj = subject)),
+      format = "file"
+    ),
+    tar_target_raw(
+      paste0("caliper_", s),
+      substitute(calculate_caliper(model), list(model = sym(paste0("model_", s))))
+    ),
+    tar_target_raw(
+      paste0("report_caliper_", s),
+      substitute(generate_caliper_report(caliper, model, g, subj),
+                 list(caliper = sym(paste0("caliper_", s)), model = sym(paste0("model_", s)),
+                      g = grade, subj = subject)),
+      format = "file"
+    ),
+    tar_target_raw(
+      paste0("student_preds_", s),
+      substitute(make_student_predictions(model, data, subj),
+                 list(model = sym(paste0("model_", s)), data = sym(paste0("cleaned_data_", s, "_2021")),
+                      subj = subject)),
+      format = "rds"
+    ),
+    tar_target_raw(
+      paste0("school_preds_", s),
+      substitute(make_school_predictions(model, data),
+                 list(model = sym(paste0("model_", s)), data = sym(paste0("cleaned_data_", s, "_2021"))))
+    ),
+    tar_target_raw(
+      paste0("report_predictions_", s),
+      substitute(generate_predictions_report(spreds, schpreds, g, subj),
+                 list(spreds = sym(paste0("student_preds_", s)), schpreds = sym(paste0("school_preds_", s)),
+                      g = grade, subj = subject)),
+      format = "file"
+    ),
+    tar_target_raw(
+      paste0("treatment_", s),
+      substitute(assign_treatment_from_data(data, config$prop_treatment, config$seed),
+                 list(data = sym(paste0("cleaned_data_", s, "_2021"))))
+    ),
+    tar_target_raw(
+      paste0("report_treatment_", s),
+      substitute(generate_treatment_report(trt, data, g, subj),
+                 list(trt = sym(paste0("treatment_", s)), data = sym(paste0("cleaned_data_", s, "_2021")),
+                      g = grade, subj = subject)),
+      format = "file"
+    ),
+    tar_target_raw(
+      paste0("dist_matchahead_", s),
+      substitute(compute_matchahead_distances(preds, trt, caliper, config$max_controls, cores = config$cores),
+                 list(preds = sym(paste0("student_preds_", s)), trt = sym(paste0("treatment_", s)),
+                      caliper = sym(paste0("caliper_", s)))),
+      format = "rds"
+    ),
+    tar_target_raw(
+      paste0("dist_pimentel_", s),
+      substitute(compute_pimentel_distances(preds, trt, config$max_controls, cores = config$cores),
+                 list(preds = sym(paste0("student_preds_", s)), trt = sym(paste0("treatment_", s)))),
+      format = "rds"
+    ),
+    tar_target_raw(
+      paste0("report_distances_", s),
+      substitute(generate_distances_report(dma, dpim, g, subj),
+                 list(dma = sym(paste0("dist_matchahead_", s)), dpim = sym(paste0("dist_pimentel_", s)),
+                      g = grade, subj = subject)),
+      format = "file"
+    ),
+    tar_target_raw(
+      paste0("school_match_ma_", s),
+      substitute(match_schools(dist, trt),
+                 list(dist = sym(paste0("dist_matchahead_", s)), trt = sym(paste0("treatment_", s))))
+    ),
+    tar_target_raw(
+      paste0("school_match_pim_", s),
+      substitute(match_schools(dist, trt),
+                 list(dist = sym(paste0("dist_pimentel_", s)), trt = sym(paste0("treatment_", s))))
+    ),
+    tar_target_raw(
+      paste0("report_school_matching_", s),
+      substitute(generate_school_matching_report(ma, pim, preds, g, subj),
+                 list(ma = sym(paste0("school_match_ma_", s)), pim = sym(paste0("school_match_pim_", s)),
+                      preds = sym(paste0("student_preds_", s)), g = grade, subj = subject)),
+      format = "file"
+    ),
+    tar_target_raw(
+      paste0("student_match_ma_", s),
+      substitute(match_all_students(smatch, preds, config$max_controls),
+                 list(smatch = sym(paste0("school_match_ma_", s)), preds = sym(paste0("student_preds_", s)))),
+      format = "rds"
+    ),
+    tar_target_raw(
+      paste0("student_match_pim_", s),
+      substitute(match_all_students(smatch, preds, config$max_controls),
+                 list(smatch = sym(paste0("school_match_pim_", s)), preds = sym(paste0("student_preds_", s)))),
+      format = "rds"
+    ),
+    tar_target_raw(
+      paste0("report_student_matching_", s),
+      substitute(generate_student_matching_report(ma, pim, preds, g, subj),
+                 list(ma = sym(paste0("student_match_ma_", s)), pim = sym(paste0("student_match_pim_", s)),
+                      preds = sym(paste0("student_preds_", s)), g = grade, subj = subject)),
+      format = "file"
+    ),
+    tar_target_raw(
+      paste0("effect_ma_", s),
+      substitute(estimate_treatment_effect_full(match, data, subj),
+                 list(match = sym(paste0("student_match_ma_", s)), data = sym(paste0("cleaned_data_", s, "_2021")),
+                      subj = subject))
+    ),
+    tar_target_raw(
+      paste0("effect_pim_", s),
+      substitute(estimate_treatment_effect_full(match, data, subj),
+                 list(match = sym(paste0("student_match_pim_", s)), data = sym(paste0("cleaned_data_", s, "_2021")),
+                      subj = subject))
+    ),
+    tar_target_raw(
+      paste0("report_effects_", s),
+      substitute(generate_effects_report(ema, epim, g, subj),
+                 list(ema = sym(paste0("effect_ma_", s)), epim = sym(paste0("effect_pim_", s)),
+                      g = grade, subj = subject)),
+      format = "file"
+    ),
+    tar_target_raw(
+      paste0("comparison_", s),
+      substitute(generate_comparison(ema, epim, dma, dpim, g, subj),
+                 list(ema = sym(paste0("effect_ma_", s)), epim = sym(paste0("effect_pim_", s)),
+                      dma = sym(paste0("dist_matchahead_", s)), dpim = sym(paste0("dist_pimentel_", s)),
+                      g = grade, subj = subject))
+    )
+  )
+}
 
-  # ############################################################################
-  # CHAIN 5: Grade 5, glmath (GATE: comparison_4_readng)
-  # ############################################################################
-  tar_target(
-    cleaned_data_5_glmath_2019,
-    wait_for(create_dataset("5", "glmath", "2019", sample_prop = config$sample_prop, seed = config$seed), comparison_4_readng),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_5_glmath_2019, generate_data_prep_report(cleaned_data_5_glmath_2019, "5", "glmath", "2019"), format = "file"),
-  tar_target(
-    cleaned_data_5_glmath_2021,
-    wait_for(create_dataset("5", "glmath", "2021", sample_prop = config$sample_prop, seed = config$seed), comparison_4_readng),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_5_glmath_2021, generate_data_prep_report(cleaned_data_5_glmath_2021, "5", "glmath", "2021"), format = "file"),
-  tar_target(
-    model_5_glmath,
-    fit_prognostic_model(cleaned_data_5_glmath_2019, "5", "glmath"),
-    format = "rds"
-  ),
-  tar_target(report_model_5_glmath, generate_model_report(model_5_glmath, "5", "glmath"), format = "file"),
-  tar_target(caliper_5_glmath, calculate_caliper(model_5_glmath)),
-  tar_target(report_caliper_5_glmath, generate_caliper_report(caliper_5_glmath, model_5_glmath, "5", "glmath"), format = "file"),
-  tar_target(
-    student_preds_5_glmath,
-    make_student_predictions(model_5_glmath, cleaned_data_5_glmath_2021, "glmath"),
-    format = "rds"
-  ),
-  tar_target(
-    school_preds_5_glmath,
-    make_school_predictions(model_5_glmath, cleaned_data_5_glmath_2021)
-  ),
-  tar_target(report_predictions_5_glmath, generate_predictions_report(student_preds_5_glmath, school_preds_5_glmath, "5", "glmath"), format = "file"),
-  tar_target(
-    treatment_5_glmath,
-    assign_treatment_from_data(cleaned_data_5_glmath_2021, config$prop_treatment, config$seed)
-  ),
-  tar_target(report_treatment_5_glmath, generate_treatment_report(treatment_5_glmath, cleaned_data_5_glmath_2021, "5", "glmath"), format = "file"),
-  tar_target(
-    dist_matchahead_5_glmath,
-    compute_matchahead_distances(student_preds_5_glmath, treatment_5_glmath,
-                                  caliper_5_glmath, config$max_controls,
-                                  cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(
-    dist_pimentel_5_glmath,
-    compute_pimentel_distances(student_preds_5_glmath, treatment_5_glmath,
-                                config$max_controls, cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(report_distances_5_glmath, generate_distances_report(dist_matchahead_5_glmath, dist_pimentel_5_glmath, "5", "glmath"), format = "file"),
-  tar_target(
-    school_match_ma_5_glmath,
-    match_schools(dist_matchahead_5_glmath, treatment_5_glmath)
-  ),
-  tar_target(
-    school_match_pim_5_glmath,
-    match_schools(dist_pimentel_5_glmath, treatment_5_glmath)
-  ),
-  tar_target(report_school_matching_5_glmath, generate_school_matching_report(school_match_ma_5_glmath, school_match_pim_5_glmath, student_preds_5_glmath, "5", "glmath"), format = "file"),
-  tar_target(
-    student_match_ma_5_glmath,
-    match_all_students(school_match_ma_5_glmath, student_preds_5_glmath, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(
-    student_match_pim_5_glmath,
-    match_all_students(school_match_pim_5_glmath, student_preds_5_glmath, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(report_student_matching_5_glmath, generate_student_matching_report(student_match_ma_5_glmath, student_match_pim_5_glmath, student_preds_5_glmath, "5", "glmath"), format = "file"),
-  tar_target(
-    effect_ma_5_glmath,
-    estimate_treatment_effect_full(student_match_ma_5_glmath, cleaned_data_5_glmath_2021, "glmath")
-  ),
-  tar_target(
-    effect_pim_5_glmath,
-    estimate_treatment_effect_full(student_match_pim_5_glmath, cleaned_data_5_glmath_2021, "glmath")
-  ),
-  tar_target(report_effects_5_glmath, generate_effects_report(effect_ma_5_glmath, effect_pim_5_glmath, "5", "glmath"), format = "file"),
-  tar_target(
-    comparison_5_glmath,
-    generate_comparison(effect_ma_5_glmath, effect_pim_5_glmath,
-                        dist_matchahead_5_glmath, dist_pimentel_5_glmath,
-                        "5", "glmath")
-  ),
+# Define the execution order with gates
+settings <- list(
+  list(grade = "3", subject = "glmath", gate = NULL),
+  list(grade = "3", subject = "readng", gate = "comparison_3_glmath"),
+  list(grade = "4", subject = "glmath", gate = "comparison_3_readng"),
+  list(grade = "4", subject = "readng", gate = "comparison_4_glmath"),
+  list(grade = "5", subject = "glmath", gate = "comparison_4_readng"),
+  list(grade = "5", subject = "readng", gate = "comparison_5_glmath")
+)
 
-  # ############################################################################
-  # CHAIN 6: Grade 5, readng (GATE: comparison_5_glmath)
-  # ############################################################################
-  tar_target(
-    cleaned_data_5_readng_2019,
-    wait_for(create_dataset("5", "readng", "2019", sample_prop = config$sample_prop, seed = config$seed), comparison_5_glmath),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_5_readng_2019, generate_data_prep_report(cleaned_data_5_readng_2019, "5", "readng", "2019"), format = "file"),
-  tar_target(
-    cleaned_data_5_readng_2021,
-    wait_for(create_dataset("5", "readng", "2021", sample_prop = config$sample_prop, seed = config$seed), comparison_5_glmath),
-    format = "rds"
-  ),
-  tar_target(report_data_prep_5_readng_2021, generate_data_prep_report(cleaned_data_5_readng_2021, "5", "readng", "2021"), format = "file"),
-  tar_target(
-    model_5_readng,
-    fit_prognostic_model(cleaned_data_5_readng_2019, "5", "readng"),
-    format = "rds"
-  ),
-  tar_target(report_model_5_readng, generate_model_report(model_5_readng, "5", "readng"), format = "file"),
-  tar_target(caliper_5_readng, calculate_caliper(model_5_readng)),
-  tar_target(report_caliper_5_readng, generate_caliper_report(caliper_5_readng, model_5_readng, "5", "readng"), format = "file"),
-  tar_target(
-    student_preds_5_readng,
-    make_student_predictions(model_5_readng, cleaned_data_5_readng_2021, "readng"),
-    format = "rds"
-  ),
-  tar_target(
-    school_preds_5_readng,
-    make_school_predictions(model_5_readng, cleaned_data_5_readng_2021)
-  ),
-  tar_target(report_predictions_5_readng, generate_predictions_report(student_preds_5_readng, school_preds_5_readng, "5", "readng"), format = "file"),
-  tar_target(
-    treatment_5_readng,
-    assign_treatment_from_data(cleaned_data_5_readng_2021, config$prop_treatment, config$seed)
-  ),
-  tar_target(report_treatment_5_readng, generate_treatment_report(treatment_5_readng, cleaned_data_5_readng_2021, "5", "readng"), format = "file"),
-  tar_target(
-    dist_matchahead_5_readng,
-    compute_matchahead_distances(student_preds_5_readng, treatment_5_readng,
-                                  caliper_5_readng, config$max_controls,
-                                  cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(
-    dist_pimentel_5_readng,
-    compute_pimentel_distances(student_preds_5_readng, treatment_5_readng,
-                                config$max_controls, cores = config$cores),
-    format = "rds"
-  ),
-  tar_target(report_distances_5_readng, generate_distances_report(dist_matchahead_5_readng, dist_pimentel_5_readng, "5", "readng"), format = "file"),
-  tar_target(
-    school_match_ma_5_readng,
-    match_schools(dist_matchahead_5_readng, treatment_5_readng)
-  ),
-  tar_target(
-    school_match_pim_5_readng,
-    match_schools(dist_pimentel_5_readng, treatment_5_readng)
-  ),
-  tar_target(report_school_matching_5_readng, generate_school_matching_report(school_match_ma_5_readng, school_match_pim_5_readng, student_preds_5_readng, "5", "readng"), format = "file"),
-  tar_target(
-    student_match_ma_5_readng,
-    match_all_students(school_match_ma_5_readng, student_preds_5_readng, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(
-    student_match_pim_5_readng,
-    match_all_students(school_match_pim_5_readng, student_preds_5_readng, config$max_controls),
-    format = "rds"
-  ),
-  tar_target(report_student_matching_5_readng, generate_student_matching_report(student_match_ma_5_readng, student_match_pim_5_readng, student_preds_5_readng, "5", "readng"), format = "file"),
-  tar_target(
-    effect_ma_5_readng,
-    estimate_treatment_effect_full(student_match_ma_5_readng, cleaned_data_5_readng_2021, "readng")
-  ),
-  tar_target(
-    effect_pim_5_readng,
-    estimate_treatment_effect_full(student_match_pim_5_readng, cleaned_data_5_readng_2021, "readng")
-  ),
-  tar_target(report_effects_5_readng, generate_effects_report(effect_ma_5_readng, effect_pim_5_readng, "5", "readng"), format = "file"),
-  tar_target(
-    comparison_5_readng,
-    generate_comparison(effect_ma_5_readng, effect_pim_5_readng,
-                        dist_matchahead_5_readng, dist_pimentel_5_readng,
-                        "5", "readng")
-  ),
+# Generate all chains
+chains <- lapply(settings, function(s) make_chain(s$grade, s$subject, s$gate, config))
 
-  # ############################################################################
-  # FINAL REPORT (after all chains complete)
-  # ############################################################################
-  tar_target(
-    final_report,
-    compile_final_report(list(
-      comparison_3_glmath,
-      comparison_3_readng,
-      comparison_4_glmath,
-      comparison_4_readng,
-      comparison_5_glmath,
-      comparison_5_readng
-    )),
-    format = "file"
+# Flatten and add final report
+c(
+  unlist(chains, recursive = FALSE),
+  list(
+    tar_target(
+      final_report,
+      compile_final_report(list(
+        comparison_3_glmath, comparison_3_readng,
+        comparison_4_glmath, comparison_4_readng,
+        comparison_5_glmath, comparison_5_readng
+      )),
+      format = "file"
+    )
   )
 )
