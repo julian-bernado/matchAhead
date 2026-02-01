@@ -654,14 +654,23 @@ generate_student_matching_report <- function(student_match_ma, student_match_pim
   # Helper to compute stats
   compute_stats <- function(matches) {
     n_total <- nrow(matches)
+    if (n_total == 0) {
+      return(list(
+        n_total = 0,
+        n_treatment = 0,
+        n_control = 0,
+        n_blocks = 0,
+        block_mean = NA,
+        block_min = NA,
+        block_max = NA
+      ))
+    }
+
     n_treatment <- sum(matches$treatment == 1)
     n_control <- sum(matches$treatment == 0)
     n_blocks <- length(unique(matches$match_block))
 
     block_sizes <- table(matches$match_block)
-
-    # Controls per treatment
-    block_info <- aggregate(treatment ~ match_block, data = matches, FUN = function(x) c(sum(x), sum(1-x)))
 
     list(
       n_total = n_total,
@@ -679,10 +688,14 @@ generate_student_matching_report <- function(student_match_ma, student_match_pim
 
   # SMD on prognostic score
   calc_smd <- function(matches) {
+    if (nrow(matches) == 0) return(NA)
     merged <- merge(matches, student_preds, by.x = "study_id", by.y = "study_id")
+    if (nrow(merged) == 0) return(NA)
     t_scores <- merged$student_score[merged$treatment == 1]
     c_scores <- merged$student_score[merged$treatment == 0]
+    if (length(t_scores) == 0 || length(c_scores) == 0) return(NA)
     pooled_sd <- sqrt((var(t_scores) + var(c_scores)) / 2)
+    if (is.na(pooled_sd) || pooled_sd == 0) return(NA)
     (mean(t_scores) - mean(c_scores)) / pooled_sd
   }
 

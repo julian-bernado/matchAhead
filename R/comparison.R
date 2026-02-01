@@ -120,54 +120,69 @@ compile_final_report <- function(comparison_results, output_dir = "outputs") {
     dir.create(output_dir, recursive = TRUE)
   }
 
-  # Combine CI comparisons
-  ci_rows <- lapply(comparison_results, function(x) {
-    cbind(grade = x$grade, subject = x$subject, x$ci_comparison)
+  # Build summary table data
+  summary_rows <- lapply(comparison_results, function(x) {
+    # Get time comparison data
+    time_df <- x$time_comparison
+    ma_mean_time <- time_df$matchahead[time_df$metric == "mean_per_pair"]
+    pim_mean_time <- time_df$pimentel[time_df$metric == "mean_per_pair"]
+    time_ratio <- if (ma_mean_time > 0) pim_mean_time / ma_mean_time else NA_real_
+
+    data.frame(
+      grade = x$grade,
+      subject = x$subject,
+      ma_ci_lower = x$matchahead_effect$ci_lower,
+      ma_ci_upper = x$matchahead_effect$ci_upper,
+      pim_ci_lower = x$pimentel_effect$ci_lower,
+      pim_ci_upper = x$pimentel_effect$ci_upper,
+      relative_efficiency = x$ci_comparison$relative_efficiency,
+      time_ratio = time_ratio,
+      stringsAsFactors = FALSE
+    )
   })
-  ci_summary <- do.call(rbind, ci_rows)
+  summary_df <- do.call(rbind, summary_rows)
 
-  # Combine time comparisons (pivot to wide)
-  time_summaries <- lapply(comparison_results, function(x) {
-    df <- x$time_comparison
-    df$grade <- x$grade
-    df$subject <- x$subject
-    df
-  })
-  time_summary <- do.call(rbind, time_summaries)
+  # Create markdown report
+  report_path <- file.path(output_dir, "comparison_report.md")
 
-  # Write CSV files
-  ci_path <- file.path(output_dir, "ci_comparison.csv")
-  time_path <- file.path(output_dir, "time_comparison.csv")
-
-  write.csv(ci_summary, ci_path, row.names = FALSE)
-  write.csv(time_summary, time_path, row.names = FALSE)
-
-  # Create summary text report
-  report_path <- file.path(output_dir, "comparison_report.txt")
-
-  sink(report_path)
-  cat("matchAhead vs Pimentel Comparison Report\n")
-  cat("=========================================\n\n")
-
-  cat("CONFIDENCE INTERVAL COMPARISON\n")
-  cat("------------------------------\n")
-  print(ci_summary)
-  cat("\n")
-
-  cat("COMPUTATION TIME COMPARISON\n")
-  cat("---------------------------\n")
-  # Print time summary pivot
-  time_wide <- reshape(
-    time_summary[time_summary$metric %in% c("total_seconds", "mean_per_pair"), ],
-    idvar = c("grade", "subject"),
-    timevar = "metric",
-    direction = "wide"
+  lines <- c(
+    "# matchAhead vs Pimentel Comparison Report",
+    "",
+    "## Summary Table",
+    "",
+    "| Grade | Subject | MA CI Lower | MA CI Upper | Pim CI Lower | Pim CI Upper | Rel. Efficiency | Time Ratio |",
+    "|-------|---------|-------------|-------------|--------------|--------------|-----------------|------------|"
   )
-  print(time_wide)
-  cat("\n")
 
-  sink()
+  for (i in seq_len(nrow(summary_df))) {
+    row <- summary_df[i, ]
+    lines <- c(lines, sprintf(
+      "| %s | %s | %.4f | %.4f | %.4f | %.4f | %.3f | %.2f |",
+      row$grade,
+      row$subject,
+      row$ma_ci_lower,
+      row$ma_ci_upper,
+      row$pim_ci_lower,
+      row$pim_ci_upper,
+      row$relative_efficiency,
+      row$time_ratio
+    ))
+  }
 
+  lines <- c(lines,
+    "",
+    "## Column Definitions",
+    "",
+    "- **Grade**: Grade level (3, 4, or 5)",
+    "- **Subject**: glmath or readng",
+    "- **MA CI Lower/Upper**: matchAhead 95% confidence interval bounds",
+    "- **Pim CI Lower/Upper**: Pimentel 95% confidence interval bounds",
+    "- **Rel. Efficiency**: Relative efficiency = (Pimentel SE / matchAhead SE)^2",
+    "- **Time Ratio**: avg_pim_time_per_pair / avg_ma_time_per_pair (speedup factor)",
+    ""
+  )
+
+  writeLines(lines, report_path)
   cat("Report written to:", report_path, "\n")
 
   return(report_path)
