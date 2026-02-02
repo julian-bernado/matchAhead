@@ -3,69 +3,67 @@
 ## Model Formula
 
 ```
-readng_scr_p0 ~ (1 | dstschid_state_enroll_p0) + age + specialed_ever + homeless_ever + lep_ever + migrant_ever + attend_p0 + gender_2 + raceth_2 + raceth_3 + raceth_6 + raceth_4 + raceth_Unknown + raceth_5 + raceth_7 + avg_age + avg_specialed_ever + avg_homeless_ever + avg_lep_ever + avg_migrant_ever + avg_attend_p0 + avg_gender_2 + avg_raceth_2 + avg_raceth_3 + avg_raceth_6 + avg_raceth_4 + avg_raceth_Unknown + avg_raceth_5 + avg_raceth_7
+readng_scr_p0 ~ (1 | dstschid_state_enroll_p0) + age + lep_ever + migrant_ever + homeless_ever + specialed_ever + attend_p0 + gender_2 + raceth_3 + raceth_6 + raceth_4 + raceth_2 + raceth_Unknown + raceth_5 + avg_age + avg_lep_ever + avg_migrant_ever + avg_homeless_ever + avg_specialed_ever + avg_attend_p0 + avg_gender_2 + avg_raceth_3 + avg_raceth_6 + avg_raceth_4 + avg_raceth_2 + avg_raceth_Unknown + avg_raceth_5
 ```
 
 ## Sample Size
 
 | Metric | Value |
 |--------|-------|
-| Students | 2834 |
-| Schools | 100 |
+| Students | 17545 |
+| Schools | 229 |
 
 ## Fixed Effects
 
 | Term | Estimate | SE | t-value |
 |------|----------|-----|---------|
-| (Intercept) | 1.0183 | 0.2572 | 3.96 |
-| age | -0.1068 | 0.0454 | -2.36 |
-| specialed_ever | -0.0180 | 0.0068 | -2.63 |
-| homeless_ever | 0.0011 | 0.0099 | 0.11 |
-| lep_ever | -0.0252 | 0.0062 | -4.08 |
-| migrant_ever | -0.0033 | 0.0118 | -0.28 |
-| attend_p0 | 0.0110 | 0.0319 | 0.34 |
-| gender_2 | 0.0077 | 0.0048 | 1.60 |
-| raceth_2 | -0.0035 | 0.0061 | -0.57 |
-| raceth_3 | -0.0077 | 0.0067 | -1.15 |
-| raceth_6 | 0.0200 | 0.0162 | 1.24 |
-| raceth_4 | -0.0064 | 0.0096 | -0.67 |
-| raceth_Unknown | -0.0136 | 0.0145 | -0.94 |
-| raceth_5 | -0.0205 | 0.0142 | -1.45 |
-| raceth_7 | -0.0280 | 0.0188 | -1.49 |
-| avg_age | -0.3475 | 0.2627 | -1.32 |
-| avg_specialed_ever | -0.0219 | 0.0340 | -0.64 |
-| avg_homeless_ever | -0.0426 | 0.0566 | -0.75 |
-| avg_lep_ever | -0.0478 | 0.0331 | -1.45 |
-| avg_migrant_ever | 0.0951 | 0.0697 | 1.37 |
-| avg_attend_p0 | -0.0791 | 0.1787 | -0.44 |
-| avg_gender_2 | -0.0018 | 0.0254 | -0.07 |
-| avg_raceth_2 | -0.0301 | 0.0349 | -0.86 |
-| avg_raceth_3 | -0.0182 | 0.0368 | -0.49 |
-| avg_raceth_6 | -0.2757 | 0.1011 | -2.73 |
-| avg_raceth_4 | -0.0196 | 0.0459 | -0.43 |
-| avg_raceth_Unknown | -0.0126 | 0.0801 | -0.16 |
-| avg_raceth_5 | -0.0237 | 0.0693 | -0.34 |
-| avg_raceth_7 | -0.1009 | 0.0961 | -1.05 |
+| (Intercept) | -0.0321 | 0.1894 | -0.17 |
+| age | -0.0076 | 0.0152 | -0.50 |
+| lep_ever | -0.0198 | 0.0015 | -13.29 |
+| migrant_ever | -0.0177 | 0.0095 | -1.87 |
+| homeless_ever | -0.0074 | 0.0026 | -2.83 |
+| specialed_ever | -0.0565 | 0.0016 | -35.45 |
+| attend_p0 | 0.2031 | 0.0154 | 13.22 |
+| gender_2 | -0.0059 | 0.0010 | -5.68 |
+| raceth_3 | -0.0359 | 0.0070 | -5.15 |
+| raceth_6 | 0.0005 | 0.0069 | 0.07 |
+| raceth_4 | -0.0189 | 0.0068 | -2.76 |
+| raceth_2 | 0.0109 | 0.0073 | 1.49 |
+| raceth_Unknown | -0.0047 | 0.0076 | -0.62 |
+| raceth_5 | -0.0310 | 0.0137 | -2.26 |
+| avg_age | -0.3573 | 0.1793 | -1.99 |
+| avg_lep_ever | -0.0191 | 0.0078 | -2.44 |
+| avg_migrant_ever | -0.0639 | 0.0517 | -1.24 |
+| avg_homeless_ever | -0.0124 | 0.0117 | -1.06 |
+| avg_specialed_ever | -0.0577 | 0.0253 | -2.28 |
+| avg_attend_p0 | 1.1224 | 0.1395 | 8.05 |
+| avg_gender_2 | -0.0056 | 0.0200 | -0.28 |
+| avg_raceth_3 | -0.0716 | 0.0649 | -1.10 |
+| avg_raceth_6 | -0.0076 | 0.0647 | -0.12 |
+| avg_raceth_4 | -0.0436 | 0.0635 | -0.69 |
+| avg_raceth_2 | 0.0263 | 0.0658 | 0.40 |
+| avg_raceth_Unknown | -0.0613 | 0.0889 | -0.69 |
+| avg_raceth_5 | 0.2101 | 0.1751 | 1.20 |
 
 ## Random Effects
 
 | Component | Variance | SD |
 |-----------|----------|-----|
-| School (Intercept) | 0.000000 | 0.0000 |
-| Residual | 0.015461 | 0.1243 |
+| School (Intercept) | 0.000269 | 0.0164 |
+| Residual | 0.004562 | 0.0675 |
 
-**ICC:** 0.0000
+**ICC:** 0.0557
 
 ## Model Fit
 
 | Metric | Value |
 |--------|-------|
-| AIC | -3577.96 |
-| BIC | -3393.52 |
-| Log-likelihood | 1819.98 |
+| AIC | -44176.14 |
+| BIC | -43950.73 |
+| Log-likelihood | 22117.07 |
 
 ## Convergence
 
-- Converged: No
-- Singular fit: Yes
+- Converged: Yes
+- Singular fit: No
 

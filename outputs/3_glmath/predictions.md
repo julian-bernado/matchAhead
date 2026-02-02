@@ -4,47 +4,47 @@
 
 | Statistic | Value |
 |-----------|-------|
-| N | 2864 |
-| Mean | 0.6217 |
-| SD | 0.0206 |
-| Min | 0.5388 |
-| Q1 | 0.6085 |
-| Median | 0.6248 |
-| Q3 | 0.6370 |
-| Max | 0.6740 |
+| N | 19539 |
+| Mean | 0.7270 |
+| SD | 0.0466 |
+| Min | 0.3381 |
+| Q1 | 0.7043 |
+| Median | 0.7363 |
+| Q3 | 0.7584 |
+| Max | 0.8290 |
 
 ### By-School Variance
 
 | Component | Variance |
 |-----------|----------|
-| Between-school | 0.000127 |
-| Within-school (mean) | 0.000319 |
+| Between-school | 0.000791 |
+| Within-school (mean) | 0.001436 |
 
 ## School-Level Predictions
 
 | Statistic | Value |
 |-----------|-------|
-| N | 100 |
-| Mean | 0.6217 |
-| SD | 0.0113 |
-| Min | 0.5865 |
-| Max | 0.6459 |
+| N | 232 |
+| Mean | 0.7258 |
+| SD | 0.0281 |
+| Min | 0.5729 |
+| Max | 0.7757 |
 
-**Correlation with school size:** -0.003
+**Correlation with school size:** 0.088
 
 ### Top 3 Schools
 
 | School | Score |
 |--------|-------|
-| SCH0012 | 0.6459 |
-| SCH0008 | 0.6456 |
-| SCH0013 | 0.6443 |
+| 014906014906022 | 0.7757 |
+| 246913246913126 | 0.7727 |
+| 227904227904115 | 0.7717 |
 
 ### Bottom 3 Schools
 
 | School | Score |
 |--------|-------|
-| SCH0056 | 0.5984 |
-| SCH0098 | 0.5947 |
-| SCH0069 | 0.5865 |
+| 178904178904136 | 0.6415 |
+| 123910123910104 | 0.6356 |
+| 123910123910123 | 0.5729 |
 

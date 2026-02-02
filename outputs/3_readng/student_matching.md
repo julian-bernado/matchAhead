@@ -4,31 +4,31 @@
 
 | Metric | Value |
 |--------|-------|
-| Total students matched | 557 |
-| Treatment students | 310 |
-| Control students | 247 |
-| Match blocks | 161 |
-| Block size (mean) | 3.5 |
-| Block size (range) | [2, 19] |
-| SMD (prognostic score) | 0.3682 |
+| Total students matched | 3902 |
+| Treatment students | 2101 |
+| Control students | 1801 |
+| Match blocks | 907 |
+| Block size (mean) | 4.3 |
+| Block size (range) | [2, 94] |
+| SMD (prognostic score) | 0.0718 |
 
 ## Pimentel
 
 | Metric | Value |
 |--------|-------|
-| Total students matched | 693 |
-| Treatment students | 310 |
-| Control students | 383 |
-| Match blocks | 164 |
-| Block size (mean) | 4.2 |
-| Block size (range) | [2, 19] |
-| SMD (prognostic score) | 0.3842 |
+| Total students matched | 4893 |
+| Treatment students | 2138 |
+| Control students | 2755 |
+| Match blocks | 1139 |
+| Block size (mean) | 4.3 |
+| Block size (range) | [2, 92] |
+| SMD (prognostic score) | -0.2532 |
 
 ## Comparison
 
 | Metric | Value |
 |--------|-------|
-| Students in both | 341 |
-| matchAhead only | 216 |
-| Pimentel only | 352 |
+| Students in both | 2402 |
+| matchAhead only | 1500 |
+| Pimentel only | 2491 |
 
