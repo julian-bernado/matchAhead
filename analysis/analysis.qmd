@@ -1,0 +1,78 @@
+---
+title: "Your Title"
+author: "Julian"
+date: today
+format:
+  html:
+    toc: true
+    toc-location: left
+    code-fold: show
+    code-tools: true
+    theme: cosmo
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Section 1
+
+Your content here.
+
+```{r}
+#| label: example-chunk
+#| fig-width: 8
+#| fig-height: 6
+library(ggplot2)
+library(dplyr)
+ma_dists <- targets::tar_read("dist_matchahead_3_readng")
+pim_dists <- targets::tar_read("dist_pimentel_3_readng")
+# print(colnames(ma_dists))
+# print(length(which(ma_dists$distance == 0))/nrow(ma_dists))
+# plt <- ggplot() + geom_histogram(aes(x = ma_dists$ess))
+# summary(ma_dists$ess)
+# plot(plt)
+ma_dists$schoolpair <- paste(ma_dists$school_1, ma_dists$school_2)
+
+pim_dists$schoolpair <- paste(pim_dists$school_1, pim_dists$school_2)
+
+dists <- ma_dists |> left_join(pim_dists, by="schoolpair")
+ggplot() + geom_point(aes(x=dists$distance.x, y=dists$distance.y))
+
+
+# for (i in seq_len(nrow(pim_dists))) {
+#   if (ma_dists[i, "school_1"] == pim_dists[i, "school_1"]) {
+#     print("mismatch school 1")
+#     print(i)
+#   }
+#   if (ma_dists[i, "school_2"] == pim_dists[i, "school_2"]) {
+#     print("mismatch school 2")
+#     print(i)
+#   }
+# }
+# nrow(pim_dists)
+```
+
+```{r}
+#| label: outputs
+#| fig-width: 8
+#| fig-height: 6
+library(readr)
+library(ggplot2)
+df <- read_csv("outputs/outputs.csv")
+colnames(df)
+```
+
+```{r}
+#| label: outputs
+#| fig-width: 8
+#| fig-height: 6
+library(targets)
+library(optmatch)
+student_match <- tar_read("student_match_ma_3_glmath_a05")
+student_match |> colnames()
+match_summary <- student_match |> group_by(match_block) |> summarise(n_treatment = sum(treatment), n_control = n() - sum(treatment), n = n())
+
+
+table(match_summary$n_control)
+```
