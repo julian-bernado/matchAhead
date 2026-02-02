@@ -26,7 +26,7 @@ if (!subject %in% valid_subjects) {
 
 # Pipeline config (must match _targets.R)
 config <- list(
-  pred_year = "2021",
+  pred_year = "2022",
   prop_treatment = 0.10,
   sample_prop = 1.0,
   seed = 2026

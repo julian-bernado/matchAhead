@@ -53,6 +53,9 @@ make_chain <- function(grade, subject, alpha, gate = NULL, base_config) {
   # Suffix without alpha for shared targets (data, model, etc.)
   s_shared <- paste0(grade, "_", subject)
 
+  # Extract years from config for use in target names
+  pred_year <- config$pred_year
+
   # Helper to create symbol from name
   sym <- function(name) as.symbol(name)
 
@@ -96,18 +99,18 @@ make_chain <- function(grade, subject, alpha, gate = NULL, base_config) {
       format = "file"
     ),
     tar_target_raw(
-      paste0("cleaned_data_", s, "_2021"),
+      paste0("cleaned_data_", s, "_", pred_year),
       gated_cmd(
-        substitute(create_dataset(g, subj, "2021", sample_prop = sp, seed = sd),
-                   list(g = grade, subj = subject, sp = config$sample_prop, sd = config$seed)),
+        substitute(create_dataset(g, subj, yr, sample_prop = sp, seed = sd),
+                   list(g = grade, subj = subject, yr = pred_year, sp = config$sample_prop, sd = config$seed)),
         gate
       ),
       format = "rds"
     ),
     tar_target_raw(
-      paste0("report_data_prep_", s, "_2021"),
-      substitute(generate_data_prep_report(data, g, subj, "2021"),
-                 list(data = sym(paste0("cleaned_data_", s, "_2021")), g = grade, subj = subject)),
+      paste0("report_data_prep_", s, "_", pred_year),
+      substitute(generate_data_prep_report(data, g, subj, yr),
+                 list(data = sym(paste0("cleaned_data_", s, "_", pred_year)), g = grade, subj = subject, yr = pred_year)),
       format = "file"
     ),
     tar_target_raw(
@@ -136,14 +139,14 @@ make_chain <- function(grade, subject, alpha, gate = NULL, base_config) {
     tar_target_raw(
       paste0("student_preds_", s),
       substitute(make_student_predictions(model, data, subj),
-                 list(model = sym(paste0("model_", s)), data = sym(paste0("cleaned_data_", s, "_2021")),
+                 list(model = sym(paste0("model_", s)), data = sym(paste0("cleaned_data_", s, "_", pred_year)),
                       subj = subject)),
       format = "rds"
     ),
     tar_target_raw(
       paste0("school_preds_", s),
       substitute(make_school_predictions(model, data),
-                 list(model = sym(paste0("model_", s)), data = sym(paste0("cleaned_data_", s, "_2021"))))
+                 list(model = sym(paste0("model_", s)), data = sym(paste0("cleaned_data_", s, "_", pred_year))))
     ),
     tar_target_raw(
       paste0("report_predictions_", s),
@@ -155,13 +158,13 @@ make_chain <- function(grade, subject, alpha, gate = NULL, base_config) {
     tar_target_raw(
       paste0("treatment_", s),
       substitute(assign_treatment_from_data(data, prop_trt, sd),
-                 list(data = sym(paste0("cleaned_data_", s, "_2021")),
+                 list(data = sym(paste0("cleaned_data_", s, "_", pred_year)),
                       prop_trt = config$prop_treatment, sd = config$seed))
     ),
     tar_target_raw(
       paste0("report_treatment_", s),
       substitute(generate_treatment_report(trt, data, g, subj),
-                 list(trt = sym(paste0("treatment_", s)), data = sym(paste0("cleaned_data_", s, "_2021")),
+                 list(trt = sym(paste0("treatment_", s)), data = sym(paste0("cleaned_data_", s, "_", pred_year)),
                       g = grade, subj = subject)),
       format = "file"
     ),
@@ -228,13 +231,13 @@ make_chain <- function(grade, subject, alpha, gate = NULL, base_config) {
     tar_target_raw(
       paste0("effect_ma_", s),
       substitute(estimate_treatment_effect_full(match, data, subj, se),
-                 list(match = sym(paste0("student_match_ma_", s)), data = sym(paste0("cleaned_data_", s, "_2021")),
+                 list(match = sym(paste0("student_match_ma_", s)), data = sym(paste0("cleaned_data_", s, "_", pred_year)),
                       subj = subject, se = config$synthetic_effect))
     ),
     tar_target_raw(
       paste0("effect_pim_", s),
       substitute(estimate_treatment_effect_full(match, data, subj, se),
-                 list(match = sym(paste0("student_match_pim_", s)), data = sym(paste0("cleaned_data_", s, "_2021")),
+                 list(match = sym(paste0("student_match_pim_", s)), data = sym(paste0("cleaned_data_", s, "_", pred_year)),
                       subj = subject, se = config$synthetic_effect))
     ),
     tar_target_raw(
