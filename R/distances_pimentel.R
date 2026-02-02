@@ -133,11 +133,13 @@ calc_pimentel_distance <- function(school_1, school_2, student_scores, u = 5) {
 #' @param student_predictions Data frame with school_id, study_id, student_score
 #' @param treatment_assignment Data frame with school_id, treatment
 #' @param max_controls Maximum controls per treatment (default 5)
+#' @param alpha Weight for bias in distance formula (default 0.5)
 #' @param cores Number of parallel cores (default 1)
 #' @return Data frame with school_1, school_2, bias, ess, distance, time_sec
 compute_pimentel_distances <- function(student_predictions,
                                         treatment_assignment,
                                         max_controls = 5,
+                                        alpha = 0.5,
                                         cores = 1) {
 
   # Get treatment and control schools
@@ -204,8 +206,8 @@ compute_pimentel_distances <- function(student_predictions,
     }
   }
 
-  # Combine distance as sqrt(bias * ess)
-  distance <- sqrt(bias * ess)
+  # Combine distance as sqrt(bias^alpha * ess^(1-alpha))
+  distance <- sqrt(bias^alpha * ess^(1 - alpha))
 
   result <- data.frame(
     school_1 = pairs_df$school_1,

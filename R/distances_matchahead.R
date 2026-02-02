@@ -46,7 +46,8 @@ calc_matchahead_ess_bias <- function(school_1, school_2, student_scores, caliper
       bias <- Inf
     } else {
       # Blurry look: some treatment units cannot be matched
-      treat_mean <- mean(ts)
+      t_star_idx <- rowSums(!is.na(distance_matrix)) > 0
+      treat_mean <- mean(ts[t_star_idx])
       c_star_idx <- colSums(!is.na(distance_matrix)) > 0
       control_mean <- mean(cs[c_star_idx])
       ess <- Nt / e1
@@ -59,7 +60,7 @@ calc_matchahead_ess_bias <- function(school_1, school_2, student_scores, caliper
 
     if (e2 < Nt) {
       # Cloudy look: cannot match all treatment units 1:1
-      match_flows <- mf[["flows"]][1:nrow(in_calipers)]
+      match_flows <- mf[["flows"]][seq_len(in_calipers)]
       matched_indices <- in_calipers[match_flows == 1, , drop = FALSE]
       bias <- abs(sum(ts[matched_indices[, "row"]] - cs[matched_indices[, "col"]])) / e2
       ess <- 1 / e2
@@ -91,12 +92,14 @@ calc_matchahead_ess_bias <- function(school_1, school_2, student_scores, caliper
 #' @param treatment_assignment Data frame with school_id, treatment
 #' @param caliper Caliper value
 #' @param max_controls Maximum controls per treatment (default 5)
+#' @param alpha Weight for bias in distance formula (default 0.5)
 #' @param cores Number of parallel cores (default 1 for single-threaded)
 #' @return Data frame with school_1, school_2, bias, ess, distance, time_sec
 compute_matchahead_distances <- function(student_predictions,
                                           treatment_assignment,
                                           caliper,
                                           max_controls = 5,
+                                          alpha = 0.5,
                                           cores = 1) {
 
   # Get treatment and control schools
@@ -169,8 +172,8 @@ compute_matchahead_distances <- function(student_predictions,
     }
   }
 
-  # Combine distance as sqrt(bias * ess)
-  distance <- sqrt(bias * ess)
+  # Combine distance as sqrt(bias^alpha * ess^(1-alpha))
+  distance <- sqrt(bias^alpha * ess^(1 - alpha))
 
   result <- data.frame(
     school_1 = pairs_df$school_1,
