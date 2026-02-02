@@ -23,6 +23,23 @@ merge_outcomes <- function(student_matches, outcome_data, subject) {
   merged
 }
 
+#' Add synthetic treatment effect to outcomes
+#'
+#' Adds a constant to the outcome of treated students for testing recovery.
+#'
+#' @param merged_data Data frame with 'outcome' and 'treatment' columns
+#' @param effect_size Numeric constant to add to treated students' outcomes
+#' @return Data frame with modified outcomes for treated students
+add_synthetic_effect <- function(merged_data, effect_size = 0) {
+  if (effect_size == 0) {
+    return(merged_data)
+  }
+
+  treated_idx <- merged_data$treatment == 1
+  merged_data$outcome[treated_idx] <- merged_data$outcome[treated_idx] + effect_size
+  merged_data
+}
+
 #' Estimate treatment effect using propertee
 #'
 #' Uses lmitt with block structure and cluster-robust SEs at school level.
@@ -136,9 +153,12 @@ estimate_treatment_effect <- function(matched_data) {
 #' @param student_matches Data frame from match_all_students()
 #' @param outcome_data Cleaned data frame with outcomes
 #' @param subject Subject name
+#' @param synthetic_effect Numeric constant to add to treated students' outcomes (default 0)
 #' @return List with treatment effect estimates
-estimate_treatment_effect_full <- function(student_matches, outcome_data, subject) {
+estimate_treatment_effect_full <- function(student_matches, outcome_data, subject,
+                                           synthetic_effect = 0) {
   merged <- merge_outcomes(student_matches, outcome_data, subject)
+  merged <- add_synthetic_effect(merged, synthetic_effect)
   estimate_treatment_effect(merged)
 }
 

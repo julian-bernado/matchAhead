@@ -4,29 +4,29 @@
 
 | Metric | Value |
 |--------|-------|
-| Point estimate | -0.019008 |
-| Standard error | 0.010768 |
-| 95% CI | [-0.040113, 0.002098] |
-| CI width | 0.042212 |
-| p-value | 0.0775 |
-| Clusters (schools) | 32 |
+| Point estimate | 0.175918 |
+| Standard error | 0.005154 |
+| 95% CI | [0.165816, 0.186020] |
+| CI width | 0.020204 |
+| p-value | 0.0000 |
+| Clusters (schools) | 20 |
 
 ## Pimentel
 
 | Metric | Value |
 |--------|-------|
-| Point estimate | -0.003556 |
-| Standard error | 0.003727 |
-| 95% CI | [-0.010862, 0.003749] |
-| CI width | 0.014611 |
-| p-value | 0.3401 |
-| Clusters (schools) | 200 |
+| Point estimate | 0.186024 |
+| Standard error | 0.011365 |
+| 95% CI | [0.163750, 0.208299] |
+| CI width | 0.044549 |
+| p-value | 0.0000 |
+| Clusters (schools) | 20 |
 
 ## Comparison
 
 | Metric | Value |
 |--------|-------|
-| Estimate difference | -0.015451 |
-| CI overlap | 0.012960 |
-| Relative efficiency | 0.120 |
+| Estimate difference | -0.010106 |
+| CI overlap | 0.020204 |
+| Relative efficiency | 4.862 |
 

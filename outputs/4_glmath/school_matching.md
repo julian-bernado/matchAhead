@@ -4,26 +4,26 @@
 
 | Metric | Value |
 |--------|-------|
-| Pairs formed | 100 |
-| Distance mean | 0.0020 |
-| Distance SD | 0.0013 |
-| Distance range | [0.0002, 0.0069] |
-| Students in matched schools | 6437 |
+| Pairs formed | 10 |
+| Distance mean | 0.0000 |
+| Distance SD | 0.0000 |
+| Distance range | [0.0000, 0.0000] |
+| Students in matched schools | 541 |
 
 ## Pimentel
 
 | Metric | Value |
 |--------|-------|
-| Pairs formed | 100 |
-| Distance mean | 88.6078 |
-| Distance SD | 877.3786 |
-| Distance range | [0.5804, 8774.6555] |
-| Students in matched schools | 5859 |
+| Pairs formed | 10 |
+| Distance mean | 0.9530 |
+| Distance SD | 0.0725 |
+| Distance range | [0.8355, 1.0329] |
+| Students in matched schools | 556 |
 
 ## Comparison
 
 | Metric | Value |
 |--------|-------|
-| Overlapping pairs | 0 |
-| Mean distance difference | -88.6058 |
+| Overlapping pairs | 1 |
+| Mean distance difference | -0.9530 |
 

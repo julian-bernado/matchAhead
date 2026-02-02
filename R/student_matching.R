@@ -9,9 +9,11 @@
 #' @param control_school Control school ID
 #' @param student_predictions Data frame with school_id, study_id, student_score
 #' @param max_controls Maximum controls per treatment unit (default 5)
+#' @param caliper Optional caliper width for student score distance (default NULL)
 #' @return Data frame with study_id, school_id, treatment, match_block
 match_students_in_pair <- function(treatment_school, control_school,
-                                    student_predictions, max_controls = 5) {
+                                    student_predictions, max_controls = 5,
+                                    caliper = NULL) {
 
   # Extract students from both schools
   t_students <- student_predictions[student_predictions$school_id == treatment_school, ]
@@ -36,22 +38,37 @@ match_students_in_pair <- function(treatment_school, control_school,
   rownames(dist_mat) <- paste0("T_", t_students$study_id)
   colnames(dist_mat) <- paste0("C_", c_students$study_id)
 
-  # Mean controls
-  mean_controls <- floor(nc / nt)
-  mean_controls <- max(1, min(mean_controls, max_controls))
-
   tryCatch({
     # Convert to optmatch distance
     dist_obj <- optmatch::match_on(dist_mat)
 
+    # Apply caliper if provided
+    if (!is.null(caliper)) {
+      dist_obj <- dist_obj + optmatch::caliper(dist_obj, width = caliper)
+    }
+
     # Run fullmatch
-    fm <- optmatch::fullmatch(
-      dist_obj,
-      min.controls = 1,
-      max.controls = max_controls,
-      mean.controls = mean_controls,
-      data = NULL
-    )
+    # When caliper is used (matchAhead), don't specify mean.controls - let fullmatch
+    # find the optimal solution within caliper constraints.
+    # When no caliper (Pimentel), use mean.controls to control the matching ratio.
+    if (!is.null(caliper)) {
+      fm <- optmatch::fullmatch(
+        dist_obj,
+        min.controls = 0,
+        max.controls = max_controls,
+        data = NULL
+      )
+    } else {
+      mean_controls <- nc / nt
+      mean_controls <- min(mean_controls, max_controls)
+      fm <- optmatch::fullmatch(
+        dist_obj,
+        min.controls = 0,
+        max.controls = max_controls,
+        mean.controls = mean_controls,
+        data = NULL
+      )
+    }
 
     # Parse results
     matched <- !is.na(fm)
@@ -103,8 +120,10 @@ match_students_in_pair <- function(treatment_school, control_school,
 #' @param school_matches Data frame from match_schools()
 #' @param student_predictions Data frame with school_id, study_id, student_score
 #' @param max_controls Maximum controls per treatment (default 5)
+#' @param caliper Optional caliper width for student score distance (default NULL)
 #' @return Data frame with study_id, school_id, treatment, match_block, school_pair_id
-match_all_students <- function(school_matches, student_predictions, max_controls = 5) {
+match_all_students <- function(school_matches, student_predictions, max_controls = 5,
+                               caliper = NULL) {
 
   if (nrow(school_matches) == 0) {
     return(data.frame(
@@ -124,7 +143,7 @@ match_all_students <- function(school_matches, student_predictions, max_controls
     c_school <- school_matches$control_school[i]
 
     pair_result <- match_students_in_pair(
-      t_school, c_school, student_predictions, max_controls
+      t_school, c_school, student_predictions, max_controls, caliper
     )
 
     if (nrow(pair_result) > 0) {

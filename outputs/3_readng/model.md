@@ -3,69 +3,69 @@
 ## Model Formula
 
 ```
-readng_scr_p0 ~ (1 | dstschid_state_enroll_p0) + age + specialed_ever + homeless_ever + lep_ever + migrant_ever + attend_p0 + gender_2 + raceth_3 + raceth_7 + raceth_2 + raceth_5 + raceth_4 + raceth_Unknown + raceth_6 + avg_age + avg_specialed_ever + avg_homeless_ever + avg_lep_ever + avg_migrant_ever + avg_attend_p0 + avg_gender_2 + avg_raceth_3 + avg_raceth_7 + avg_raceth_2 + avg_raceth_5 + avg_raceth_4 + avg_raceth_Unknown + avg_raceth_6
+readng_scr_p0 ~ (1 | dstschid_state_enroll_p0) + age + specialed_ever + homeless_ever + lep_ever + migrant_ever + attend_p0 + gender_2 + raceth_2 + raceth_3 + raceth_6 + raceth_4 + raceth_Unknown + raceth_5 + raceth_7 + avg_age + avg_specialed_ever + avg_homeless_ever + avg_lep_ever + avg_migrant_ever + avg_attend_p0 + avg_gender_2 + avg_raceth_2 + avg_raceth_3 + avg_raceth_6 + avg_raceth_4 + avg_raceth_Unknown + avg_raceth_5 + avg_raceth_7
 ```
 
 ## Sample Size
 
 | Metric | Value |
 |--------|-------|
-| Students | 27732 |
-| Schools | 1000 |
+| Students | 2834 |
+| Schools | 100 |
 
 ## Fixed Effects
 
 | Term | Estimate | SE | t-value |
 |------|----------|-----|---------|
-| (Intercept) | 0.5428 | 0.0881 | 6.16 |
-| age | 0.0224 | 0.0151 | 1.48 |
-| specialed_ever | -0.0206 | 0.0022 | -9.42 |
-| homeless_ever | -0.0012 | 0.0034 | -0.35 |
-| lep_ever | -0.0101 | 0.0019 | -5.20 |
-| migrant_ever | 0.0022 | 0.0039 | 0.56 |
-| attend_p0 | -0.0059 | 0.0105 | -0.56 |
-| gender_2 | 0.0018 | 0.0015 | 1.21 |
-| raceth_3 | 0.0021 | 0.0022 | 0.96 |
-| raceth_7 | 0.0103 | 0.0058 | 1.78 |
-| raceth_2 | 0.0022 | 0.0019 | 1.14 |
-| raceth_5 | -0.0034 | 0.0048 | -0.72 |
-| raceth_4 | 0.0037 | 0.0030 | 1.25 |
-| raceth_Unknown | 0.0000 | 0.0046 | 0.01 |
-| raceth_6 | 0.0019 | 0.0057 | 0.34 |
-| avg_age | 0.0715 | 0.0885 | 0.81 |
-| avg_specialed_ever | -0.0236 | 0.0125 | -1.89 |
-| avg_homeless_ever | -0.0504 | 0.0179 | -2.82 |
-| avg_lep_ever | -0.0348 | 0.0104 | -3.33 |
-| avg_migrant_ever | -0.0350 | 0.0217 | -1.61 |
-| avg_attend_p0 | 0.0221 | 0.0591 | 0.37 |
-| avg_gender_2 | 0.0010 | 0.0086 | 0.12 |
-| avg_raceth_3 | 0.0200 | 0.0119 | 1.68 |
-| avg_raceth_7 | 0.0060 | 0.0321 | 0.19 |
-| avg_raceth_2 | 0.0269 | 0.0108 | 2.48 |
-| avg_raceth_5 | 0.0330 | 0.0265 | 1.25 |
-| avg_raceth_4 | 0.0480 | 0.0165 | 2.91 |
-| avg_raceth_Unknown | 0.0393 | 0.0260 | 1.51 |
-| avg_raceth_6 | 0.0134 | 0.0313 | 0.43 |
+| (Intercept) | 1.0183 | 0.2572 | 3.96 |
+| age | -0.1068 | 0.0454 | -2.36 |
+| specialed_ever | -0.0180 | 0.0068 | -2.63 |
+| homeless_ever | 0.0011 | 0.0099 | 0.11 |
+| lep_ever | -0.0252 | 0.0062 | -4.08 |
+| migrant_ever | -0.0033 | 0.0118 | -0.28 |
+| attend_p0 | 0.0110 | 0.0319 | 0.34 |
+| gender_2 | 0.0077 | 0.0048 | 1.60 |
+| raceth_2 | -0.0035 | 0.0061 | -0.57 |
+| raceth_3 | -0.0077 | 0.0067 | -1.15 |
+| raceth_6 | 0.0200 | 0.0162 | 1.24 |
+| raceth_4 | -0.0064 | 0.0096 | -0.67 |
+| raceth_Unknown | -0.0136 | 0.0145 | -0.94 |
+| raceth_5 | -0.0205 | 0.0142 | -1.45 |
+| raceth_7 | -0.0280 | 0.0188 | -1.49 |
+| avg_age | -0.3475 | 0.2627 | -1.32 |
+| avg_specialed_ever | -0.0219 | 0.0340 | -0.64 |
+| avg_homeless_ever | -0.0426 | 0.0566 | -0.75 |
+| avg_lep_ever | -0.0478 | 0.0331 | -1.45 |
+| avg_migrant_ever | 0.0951 | 0.0697 | 1.37 |
+| avg_attend_p0 | -0.0791 | 0.1787 | -0.44 |
+| avg_gender_2 | -0.0018 | 0.0254 | -0.07 |
+| avg_raceth_2 | -0.0301 | 0.0349 | -0.86 |
+| avg_raceth_3 | -0.0182 | 0.0368 | -0.49 |
+| avg_raceth_6 | -0.2757 | 0.1011 | -2.73 |
+| avg_raceth_4 | -0.0196 | 0.0459 | -0.43 |
+| avg_raceth_Unknown | -0.0126 | 0.0801 | -0.16 |
+| avg_raceth_5 | -0.0237 | 0.0693 | -0.34 |
+| avg_raceth_7 | -0.1009 | 0.0961 | -1.05 |
 
 ## Random Effects
 
 | Component | Variance | SD |
 |-----------|----------|-----|
-| School (Intercept) | 0.000096 | 0.0098 |
-| Residual | 0.015468 | 0.1244 |
+| School (Intercept) | 0.000000 | 0.0000 |
+| Residual | 0.015461 | 0.1243 |
 
-**ICC:** 0.0061
+**ICC:** 0.0000
 
 ## Model Fit
 
 | Metric | Value |
 |--------|-------|
-| AIC | -36499.12 |
-| BIC | -36243.98 |
-| Log-likelihood | 18280.56 |
+| AIC | -3577.96 |
+| BIC | -3393.52 |
+| Log-likelihood | 1819.98 |
 
 ## Convergence
 
-- Converged: Yes
-- Singular fit: No
+- Converged: No
+- Singular fit: Yes
 

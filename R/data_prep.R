@@ -138,6 +138,32 @@ create_dataset <- function(grade, subject, year, data_dir = "data/raw",
   return(df)
 }
 
+#' Count raw schools for a grade in a year
+#'
+#' Reads the .dta file and counts unique schools for the specified grade
+#' before any filtering or sampling.
+#'
+#' @param grade Grade level as character
+#' @param year Year as character
+#' @param data_dir Directory containing raw data
+#' @return Integer count of unique schools
+count_raw_schools <- function(grade, year, data_dir = "data/raw") {
+  grade <- as.character(grade)
+  year <- as.character(year)
+
+  # Read only school ID and grade columns
+  local_path <- file.path(data_dir, paste0("TX", year, "_DRV.dta"))
+  remote_path <- file.path("/home", "tea", "data", "current", paste0("TX", year, "_DRV.dta"))
+  data_path <- if (file.exists(local_path)) local_path else remote_path
+
+  df <- haven::read_dta(data_path,
+                        col_select = c("dstschid_state_enroll_p0", "gradelevel"))
+
+  # Filter to grade and count unique schools
+  df <- df[df$gradelevel == as.numeric(grade), ]
+  length(unique(df$dstschid_state_enroll_p0))
+}
+
 #' Save cleaned dataset to file
 #'
 #' @param data Data frame from create_dataset()

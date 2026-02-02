@@ -3,58 +3,58 @@
 ## Model Formula
 
 ```
-glmath_scr_p0 ~ (1 | dstschid_state_enroll_p0) + age + specialed_ever + homeless_ever + lep_ever + migrant_ever + attend_p0 + glmath_scr_m1 + gender_2 + raceth_2 + raceth_3 + raceth_7 + raceth_4 + raceth_5 + raceth_Unknown + raceth_6 + avg_age + avg_specialed_ever + avg_homeless_ever + avg_lep_ever + avg_migrant_ever + avg_attend_p0 + avg_glmath_scr_m1 + avg_gender_2 + avg_raceth_2 + avg_raceth_3 + avg_raceth_7 + avg_raceth_4 + avg_raceth_5 + avg_raceth_Unknown + avg_raceth_6
+glmath_scr_p0 ~ (1 | dstschid_state_enroll_p0) + age + specialed_ever + homeless_ever + lep_ever + migrant_ever + attend_p0 + glmath_scr_m1 + gender_2 + raceth_2 + raceth_7 + raceth_3 + raceth_5 + raceth_4 + raceth_Unknown + raceth_6 + avg_age + avg_specialed_ever + avg_homeless_ever + avg_lep_ever + avg_migrant_ever + avg_attend_p0 + avg_glmath_scr_m1 + avg_gender_2 + avg_raceth_2 + avg_raceth_7 + avg_raceth_3 + avg_raceth_5 + avg_raceth_4 + avg_raceth_Unknown + avg_raceth_6
 ```
 
 ## Sample Size
 
 | Metric | Value |
 |--------|-------|
-| Students | 28002 |
-| Schools | 1000 |
+| Students | 2722 |
+| Schools | 100 |
 
 ## Fixed Effects
 
 | Term | Estimate | SE | t-value |
 |------|----------|-----|---------|
-| (Intercept) | 0.1404 | 0.0637 | 2.20 |
-| age | -0.0053 | 0.0125 | -0.42 |
-| specialed_ever | -0.0088 | 0.0015 | -5.81 |
-| homeless_ever | 0.0015 | 0.0023 | 0.66 |
-| lep_ever | -0.0052 | 0.0013 | -3.93 |
-| migrant_ever | 0.0026 | 0.0026 | 1.00 |
-| attend_p0 | -0.0019 | 0.0070 | -0.28 |
-| glmath_scr_m1 | 0.7402 | 0.0042 | 174.74 |
-| gender_2 | 0.0008 | 0.0010 | 0.77 |
-| raceth_2 | -0.0010 | 0.0013 | -0.76 |
-| raceth_3 | -0.0001 | 0.0015 | -0.08 |
-| raceth_7 | -0.0001 | 0.0038 | -0.02 |
-| raceth_4 | -0.0020 | 0.0021 | -0.99 |
-| raceth_5 | -0.0028 | 0.0032 | -0.86 |
-| raceth_Unknown | -0.0002 | 0.0031 | -0.07 |
-| raceth_6 | -0.0003 | 0.0037 | -0.09 |
-| avg_age | -0.0088 | 0.0642 | -0.14 |
-| avg_specialed_ever | -0.0163 | 0.0078 | -2.10 |
-| avg_homeless_ever | -0.0146 | 0.0114 | -1.29 |
-| avg_lep_ever | -0.0134 | 0.0065 | -2.07 |
-| avg_migrant_ever | -0.0100 | 0.0129 | -0.78 |
-| avg_attend_p0 | 0.0282 | 0.0354 | 0.80 |
-| avg_glmath_scr_m1 | 0.7579 | 0.0207 | 36.59 |
-| avg_gender_2 | -0.0003 | 0.0055 | -0.06 |
-| avg_raceth_2 | 0.0083 | 0.0070 | 1.20 |
-| avg_raceth_3 | 0.0122 | 0.0077 | 1.58 |
-| avg_raceth_7 | 0.0279 | 0.0197 | 1.42 |
-| avg_raceth_4 | 0.0101 | 0.0111 | 0.90 |
-| avg_raceth_5 | 0.0210 | 0.0168 | 1.25 |
-| avg_raceth_Unknown | -0.0064 | 0.0159 | -0.40 |
-| avg_raceth_6 | -0.0223 | 0.0198 | -1.13 |
+| (Intercept) | 0.6300 | 0.2442 | 2.58 |
+| age | -0.0243 | 0.0392 | -0.62 |
+| specialed_ever | -0.0104 | 0.0049 | -2.14 |
+| homeless_ever | 0.0067 | 0.0078 | 0.86 |
+| lep_ever | -0.0010 | 0.0043 | -0.23 |
+| migrant_ever | -0.0030 | 0.0088 | -0.34 |
+| attend_p0 | -0.0024 | 0.0238 | -0.10 |
+| glmath_scr_m1 | 0.7408 | 0.0138 | 53.66 |
+| gender_2 | -0.0001 | 0.0034 | -0.03 |
+| raceth_2 | 0.0061 | 0.0043 | 1.42 |
+| raceth_7 | -0.0077 | 0.0132 | -0.58 |
+| raceth_3 | 0.0023 | 0.0048 | 0.48 |
+| raceth_5 | 0.0043 | 0.0105 | 0.41 |
+| raceth_4 | 0.0094 | 0.0065 | 1.44 |
+| raceth_Unknown | 0.0110 | 0.0101 | 1.09 |
+| raceth_6 | 0.0179 | 0.0122 | 1.47 |
+| avg_age | -0.3718 | 0.2274 | -1.63 |
+| avg_specialed_ever | -0.0248 | 0.0262 | -0.95 |
+| avg_homeless_ever | -0.0489 | 0.0391 | -1.25 |
+| avg_lep_ever | -0.0244 | 0.0232 | -1.06 |
+| avg_migrant_ever | -0.0231 | 0.0418 | -0.55 |
+| avg_attend_p0 | -0.1459 | 0.1337 | -1.09 |
+| avg_glmath_scr_m1 | 0.7696 | 0.0699 | 11.01 |
+| avg_gender_2 | -0.0174 | 0.0186 | -0.94 |
+| avg_raceth_2 | -0.0142 | 0.0228 | -0.62 |
+| avg_raceth_7 | 0.1256 | 0.0733 | 1.71 |
+| avg_raceth_3 | -0.0033 | 0.0298 | -0.11 |
+| avg_raceth_5 | 0.0403 | 0.0593 | 0.68 |
+| avg_raceth_4 | 0.0230 | 0.0336 | 0.69 |
+| avg_raceth_Unknown | 0.0733 | 0.0556 | 1.32 |
+| avg_raceth_6 | 0.0201 | 0.0655 | 0.31 |
 
 ## Random Effects
 
 | Component | Variance | SD |
 |-----------|----------|-----|
 | School (Intercept) | 0.000000 | 0.0000 |
-| Residual | 0.007225 | 0.0850 |
+| Residual | 0.007534 | 0.0868 |
 
 **ICC:** 0.0000
 
@@ -62,9 +62,9 @@ glmath_scr_p0 ~ (1 | dstschid_state_enroll_p0) + age + specialed_ever + homeless
 
 | Metric | Value |
 |--------|-------|
-| AIC | -58289.04 |
-| BIC | -58017.12 |
-| Log-likelihood | 29177.52 |
+| AIC | -5355.04 |
+| BIC | -5160.04 |
+| Log-likelihood | 2710.52 |
 
 ## Convergence
 

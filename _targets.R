@@ -1,8 +1,7 @@
 # _targets.R
 # matchAhead pipeline orchestration using targets
 #
-# EXECUTION ORDER: Deep (one grade/subject at a time)
-# 3_glmath → 3_readng → 4_glmath → 4_readng → 5_glmath → 5_readng
+# EXECUTION ORDER: Deep (one grade/subject/alpha at a time)
 #
 # Run with: targets::tar_make()
 # Visualize with: targets::tar_visnetwork()
@@ -19,8 +18,12 @@ tar_source("R/")
 # Number of cores for parallel processing (evaluated once at pipeline definition)
 n_cores <- parallel::detectCores() - 2
 
-# Configuration
-config <- list(
+# Alpha values to sweep (single value or sequence)
+alphas <- 0.5
+# alphas <- seq(0.1, 0.9, by = 0.1)  # full sweep
+
+# Base configuration (alpha is set per-chain)
+base_config <- list(
   grades = c("3", "4", "5"),
   subjects = c("glmath", "readng"),
   model_year = "2019",
@@ -29,7 +32,8 @@ config <- list(
   prop_treatment = 0.10,
   sample_prop = 1.0,
   seed = 2026,
-  cores = n_cores
+  cores = n_cores,
+  synthetic_effect = 0.2
 )
 
 # identity function that creates dependency without using the value
@@ -37,9 +41,17 @@ wait_for <- function(data, gate = NULL) {
   data
 }
 
-# Factory function to generate all targets for one grade/subject chain
-make_chain <- function(grade, subject, gate = NULL, config) {
-  s <- paste0(grade, "_", subject)
+# Factory function to generate all targets for one grade/subject/alpha chain
+make_chain <- function(grade, subject, alpha, gate = NULL, base_config) {
+  # Create config with this alpha value
+  config <- c(base_config, list(alpha = alpha))
+
+  # Suffix includes alpha (e.g., "3_glmath_a05" for alpha=0.5)
+  alpha_str <- sprintf("a%02d", round(alpha * 10))
+  s <- paste0(grade, "_", subject, "_", alpha_str)
+
+  # Suffix without alpha for shared targets (data, model, etc.)
+  s_shared <- paste0(grade, "_", subject)
 
   # Helper to create symbol from name
   sym <- function(name) as.symbol(name)
@@ -51,11 +63,28 @@ make_chain <- function(grade, subject, gate = NULL, config) {
   }
 
   list(
+    # Raw school counts (before any filtering/sampling)
+    tar_target_raw(
+      paste0("raw_school_count_", s, "_model"),
+      gated_cmd(
+        substitute(count_raw_schools(g, yr),
+                   list(g = grade, yr = config$model_year)),
+        gate
+      )
+    ),
+    tar_target_raw(
+      paste0("raw_school_count_", s, "_pred"),
+      gated_cmd(
+        substitute(count_raw_schools(g, yr),
+                   list(g = grade, yr = config$pred_year)),
+        gate
+      )
+    ),
     tar_target_raw(
       paste0("cleaned_data_", s, "_2019"),
       gated_cmd(
-        substitute(create_dataset(g, subj, "2019", sample_prop = config$sample_prop, seed = config$seed),
-                   list(g = grade, subj = subject)),
+        substitute(create_dataset(g, subj, "2019", sample_prop = sp, seed = sd),
+                   list(g = grade, subj = subject, sp = config$sample_prop, sd = config$seed)),
         gate
       ),
       format = "rds"
@@ -69,8 +98,8 @@ make_chain <- function(grade, subject, gate = NULL, config) {
     tar_target_raw(
       paste0("cleaned_data_", s, "_2021"),
       gated_cmd(
-        substitute(create_dataset(g, subj, "2021", sample_prop = config$sample_prop, seed = config$seed),
-                   list(g = grade, subj = subject)),
+        substitute(create_dataset(g, subj, "2021", sample_prop = sp, seed = sd),
+                   list(g = grade, subj = subject, sp = config$sample_prop, sd = config$seed)),
         gate
       ),
       format = "rds"
@@ -125,8 +154,9 @@ make_chain <- function(grade, subject, gate = NULL, config) {
     ),
     tar_target_raw(
       paste0("treatment_", s),
-      substitute(assign_treatment_from_data(data, config$prop_treatment, config$seed),
-                 list(data = sym(paste0("cleaned_data_", s, "_2021"))))
+      substitute(assign_treatment_from_data(data, prop_trt, sd),
+                 list(data = sym(paste0("cleaned_data_", s, "_2021")),
+                      prop_trt = config$prop_treatment, sd = config$seed))
     ),
     tar_target_raw(
       paste0("report_treatment_", s),
@@ -137,15 +167,17 @@ make_chain <- function(grade, subject, gate = NULL, config) {
     ),
     tar_target_raw(
       paste0("dist_matchahead_", s),
-      substitute(compute_matchahead_distances(preds, trt, caliper, config$max_controls, cores = config$cores),
+      substitute(compute_matchahead_distances(preds, trt, caliper, max_ctrl, alpha = alph, cores = ncores),
                  list(preds = sym(paste0("student_preds_", s)), trt = sym(paste0("treatment_", s)),
-                      caliper = sym(paste0("caliper_", s)))),
+                      caliper = sym(paste0("caliper_", s)),
+                      max_ctrl = config$max_controls, alph = config$alpha, ncores = config$cores)),
       format = "rds"
     ),
     tar_target_raw(
       paste0("dist_pimentel_", s),
-      substitute(compute_pimentel_distances(preds, trt, config$max_controls, cores = config$cores),
-                 list(preds = sym(paste0("student_preds_", s)), trt = sym(paste0("treatment_", s)))),
+      substitute(compute_pimentel_distances(preds, trt, max_ctrl, alpha = alph, cores = ncores),
+                 list(preds = sym(paste0("student_preds_", s)), trt = sym(paste0("treatment_", s)),
+                      max_ctrl = config$max_controls, alph = config$alpha, ncores = config$cores)),
       format = "rds"
     ),
     tar_target_raw(
@@ -174,14 +206,16 @@ make_chain <- function(grade, subject, gate = NULL, config) {
     ),
     tar_target_raw(
       paste0("student_match_ma_", s),
-      substitute(match_all_students(smatch, preds, config$max_controls),
-                 list(smatch = sym(paste0("school_match_ma_", s)), preds = sym(paste0("student_preds_", s)))),
+      substitute(match_all_students(smatch, preds, max_ctrl, caliper),
+                 list(smatch = sym(paste0("school_match_ma_", s)), preds = sym(paste0("student_preds_", s)),
+                      caliper = sym(paste0("caliper_", s)), max_ctrl = config$max_controls)),
       format = "rds"
     ),
     tar_target_raw(
       paste0("student_match_pim_", s),
-      substitute(match_all_students(smatch, preds, config$max_controls),
-                 list(smatch = sym(paste0("school_match_pim_", s)), preds = sym(paste0("student_preds_", s)))),
+      substitute(match_all_students(smatch, preds, max_ctrl),
+                 list(smatch = sym(paste0("school_match_pim_", s)), preds = sym(paste0("student_preds_", s)),
+                      max_ctrl = config$max_controls)),
       format = "rds"
     ),
     tar_target_raw(
@@ -193,15 +227,15 @@ make_chain <- function(grade, subject, gate = NULL, config) {
     ),
     tar_target_raw(
       paste0("effect_ma_", s),
-      substitute(estimate_treatment_effect_full(match, data, subj),
+      substitute(estimate_treatment_effect_full(match, data, subj, se),
                  list(match = sym(paste0("student_match_ma_", s)), data = sym(paste0("cleaned_data_", s, "_2021")),
-                      subj = subject))
+                      subj = subject, se = config$synthetic_effect))
     ),
     tar_target_raw(
       paste0("effect_pim_", s),
-      substitute(estimate_treatment_effect_full(match, data, subj),
+      substitute(estimate_treatment_effect_full(match, data, subj, se),
                  list(match = sym(paste0("student_match_pim_", s)), data = sym(paste0("cleaned_data_", s, "_2021")),
-                      subj = subject))
+                      subj = subject, se = config$synthetic_effect))
     ),
     tar_target_raw(
       paste0("report_effects_", s),
@@ -211,39 +245,103 @@ make_chain <- function(grade, subject, gate = NULL, config) {
       format = "file"
     ),
     tar_target_raw(
+      paste0("n_schools_model_year_", s),
+      substitute(length(unique(data$dstschid_state_enroll_p0)),
+                 list(data = sym(paste0("cleaned_data_", s, "_2019"))))
+    ),
+    tar_target_raw(
       paste0("comparison_", s),
-      substitute(generate_comparison(ema, epim, dma, dpim, g, subj),
-                 list(ema = sym(paste0("effect_ma_", s)), epim = sym(paste0("effect_pim_", s)),
-                      dma = sym(paste0("dist_matchahead_", s)), dpim = sym(paste0("dist_pimentel_", s)),
-                      g = grade, subj = subject))
+      substitute(generate_comparison(
+        matchahead_effect = ema,
+        pimentel_effect = epim,
+        matchahead_distances = dma,
+        pimentel_distances = dpim,
+        matchahead_matches = sma,
+        pimentel_matches = spim,
+        student_preds = preds,
+        school_match_ma = school_ma,
+        treatment_assignment = trt,
+        caliper_value = caliper,
+        n_raw_schools_model_year = raw_model,
+        n_raw_schools_pred_year = raw_pred,
+        n_schools_model_year = n_schools_model,
+        grade = g,
+        subject = subj,
+        config = cfg
+      ),
+                 list(ema = sym(paste0("effect_ma_", s)),
+                      epim = sym(paste0("effect_pim_", s)),
+                      dma = sym(paste0("dist_matchahead_", s)),
+                      dpim = sym(paste0("dist_pimentel_", s)),
+                      sma = sym(paste0("student_match_ma_", s)),
+                      spim = sym(paste0("student_match_pim_", s)),
+                      preds = sym(paste0("student_preds_", s)),
+                      school_ma = sym(paste0("school_match_ma_", s)),
+                      trt = sym(paste0("treatment_", s)),
+                      caliper = sym(paste0("caliper_", s)),
+                      raw_model = sym(paste0("raw_school_count_", s, "_model")),
+                      raw_pred = sym(paste0("raw_school_count_", s, "_pred")),
+                      n_schools_model = sym(paste0("n_schools_model_year_", s)),
+                      g = grade,
+                      subj = subject,
+                      cfg = config))
     )
   )
 }
 
-# Define the execution order with gates
-settings <- list(
-  list(grade = "3", subject = "glmath", gate = NULL),
-  list(grade = "3", subject = "readng", gate = "comparison_3_glmath"),
-  list(grade = "4", subject = "glmath", gate = "comparison_3_readng"),
-  list(grade = "4", subject = "readng", gate = "comparison_4_glmath"),
-  list(grade = "5", subject = "glmath", gate = "comparison_4_readng"),
-  list(grade = "5", subject = "readng", gate = "comparison_5_glmath")
+# Generate settings: all combinations of grade, subject, alpha
+settings_grid <- expand.grid(
+  grade = c("3", "4", "5"),
+  subject = c("glmath", "readng"),
+  alpha = alphas,
+  stringsAsFactors = FALSE
 )
 
+# Sort by grade, then subject, then alpha for consistent ordering
+settings_grid <- settings_grid[order(settings_grid$grade, settings_grid$subject, settings_grid$alpha), ]
+
+# Convert to list and add gating (each chain waits for the previous)
+settings <- lapply(seq_len(nrow(settings_grid)), function(i) {
+  row <- settings_grid[i, ]
+  alpha_str <- sprintf("a%02d", round(row$alpha * 10))
+
+  # Gate: wait for previous comparison (NULL for first)
+  gate <- if (i == 1) {
+    NULL
+  } else {
+    prev <- settings_grid[i - 1, ]
+    prev_alpha_str <- sprintf("a%02d", round(prev$alpha * 10))
+    paste0("comparison_", prev$grade, "_", prev$subject, "_", prev_alpha_str)
+  }
+
+  list(grade = row$grade, subject = row$subject, alpha = row$alpha, gate = gate)
+})
+
 # Generate all chains
-chains <- lapply(settings, function(s) make_chain(s$grade, s$subject, s$gate, config))
+chains <- lapply(settings, function(s) {
+  make_chain(s$grade, s$subject, s$alpha, s$gate, base_config)
+})
+
+# Build list of all comparison targets for final report
+comparison_symbols <- lapply(seq_len(nrow(settings_grid)), function(i) {
+  row <- settings_grid[i, ]
+  alpha_str <- sprintf("a%02d", round(row$alpha * 10))
+  as.symbol(paste0("comparison_", row$grade, "_", row$subject, "_", alpha_str))
+})
+
+# Build the call: compile_final_report(list(comparison_3_glmath_a05, ...))
+final_report_call <- as.call(c(
+  list(as.symbol("compile_final_report")),
+  list(as.call(c(list(as.symbol("list")), comparison_symbols)))
+))
 
 # Flatten and add final report
 c(
   unlist(chains, recursive = FALSE),
   list(
-    tar_target(
-      final_report,
-      compile_final_report(list(
-        comparison_3_glmath, comparison_3_readng,
-        comparison_4_glmath, comparison_4_readng,
-        comparison_5_glmath, comparison_5_readng
-      )),
+    tar_target_raw(
+      "final_report",
+      final_report_call,
       format = "file"
     )
   )

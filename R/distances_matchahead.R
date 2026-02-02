@@ -172,8 +172,8 @@ compute_matchahead_distances <- function(student_predictions,
     }
   }
 
-  # Combine distance as sqrt(bias^alpha * ess^(1-alpha))
-  distance <- sqrt(bias^alpha * ess^(1 - alpha))
+  # Combine distance as bias^alpha * ess^(1-alpha)
+  distance <- bias^alpha * ess^(1 - alpha)
 
   result <- data.frame(
     school_1 = pairs_df$school_1,
