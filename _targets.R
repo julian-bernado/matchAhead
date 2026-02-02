@@ -16,7 +16,7 @@ tar_option_set(packages = c("propertee"))
 tar_source("R/")
 
 # Number of cores for parallel processing (evaluated once at pipeline definition)
-n_cores <- parallel::detectCores() - 2
+n_cores <- 24 
 
 # Alpha values to sweep (single value or sequence)
 alphas <- 0.5

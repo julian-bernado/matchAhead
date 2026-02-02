@@ -11,8 +11,8 @@
 | Distance median | 0.1103 |
 | Distance Q1 | 0.0000 |
 | Distance Q3 | 0.1627 |
-| Total time | 23.65 sec |
-| Time per pair | 0.0049 sec |
+| Total time | 24.30 sec |
+| Time per pair | 0.0051 sec |
 
 ## Pimentel
 
@@ -22,8 +22,8 @@
 | Distance mean | 1.1586 |
 | Distance SD | 0.3472 |
 | Distance median | 1.1121 |
-| Total time | 267.42 sec |
-| Time per pair | 0.0556 sec |
+| Total time | 267.00 sec |
+| Time per pair | 0.0555 sec |
 
 ## Comparison
 
@@ -31,5 +31,5 @@
 |--------|-------|
 | Pairs excluded by caliper | 0.0% |
 | Distance correlation | -0.365 |
-| Speedup factor | 11.3x |
+| Speedup factor | 11.0x |
 
