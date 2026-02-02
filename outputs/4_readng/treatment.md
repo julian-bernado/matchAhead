@@ -1,4 +1,4 @@
-# Treatment Assignment Report: Grade 4, glmath
+# Treatment Assignment Report: Grade 4, readng
 
 ## School Assignment
 
@@ -12,7 +12,7 @@
 
 | Group | Students |
 |-------|----------|
-| Treatment schools | 1940 |
-| Control schools | 16603 |
-| **Total** | **18543** |
+| Treatment schools | 1668 |
+| Control schools | 17022 |
+| **Total** | **18690** |
 
