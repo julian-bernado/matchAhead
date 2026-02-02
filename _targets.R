@@ -27,7 +27,7 @@ base_config <- list(
   grades = c("3", "4", "5"),
   subjects = c("glmath", "readng"),
   model_year = "2019",
-  pred_year = "2021",
+  pred_year = "2022",
   max_controls = 5,
   prop_treatment = 0.10,
   sample_prop = 0.05,
