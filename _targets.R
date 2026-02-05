@@ -29,11 +29,11 @@ base_config <- list(
   model_year = "2019",
   pred_year = "2022",
   max_controls = 5,
-  prop_treatment = 0.10,
-  sample_prop = 0.1,
+  prop_treatment = 0.03,
+  sample_prop = 1.0,
   seed = 2026,
   cores = n_cores,
-  synthetic_effect = 0.2
+  synthetic_effect = 0.0
 )
 
 # identity function that creates dependency without using the value
