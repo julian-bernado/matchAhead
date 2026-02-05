@@ -4,15 +4,15 @@
 
 | Group | Schools | % |
 |-------|---------|---|
-| Treatment | 23 | 9.8% |
-| Control | 211 | 90.2% |
-| **Total** | **234** | |
+| Treatment | 14 | 3.0% |
+| Control | 453 | 97.0% |
+| **Total** | **467** | |
 
 ## Student Counts
 
 | Group | Students |
 |-------|----------|
-| Treatment schools | 1668 |
-| Control schools | 17022 |
-| **Total** | **18690** |
+| Treatment schools | 1023 |
+| Control schools | 35829 |
+| **Total** | **36852** |
 

@@ -30,7 +30,7 @@ base_config <- list(
   pred_year = "2022",
   max_controls = 5,
   prop_treatment = 0.03,
-  sample_prop = 1.0,
+  sample_prop = 0.1,
   seed = 2026,
   cores = n_cores,
   synthetic_effect = 0.0

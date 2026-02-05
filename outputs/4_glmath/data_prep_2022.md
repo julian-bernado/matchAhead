@@ -4,39 +4,39 @@
 
 | Metric | Value |
 |--------|-------|
-| Total students | 18543 |
-| Total schools | 234 |
+| Total students | 37615 |
+| Total schools | 467 |
 
 ## Students per School
 
 | Statistic | Value |
 |-----------|-------|
-| Mean | 79.2 |
-| SD | 39.3 |
+| Mean | 80.5 |
+| SD | 42.7 |
 | Min | 1 |
-| Max | 240 |
+| Max | 248 |
 
 ## Outcome Distribution (glmath_scr_p0)
 
 | Statistic | Value |
 |-----------|-------|
-| Mean | 0.7356 |
-| SD | 0.0728 |
-| Min | 0.4372 |
+| Mean | 0.7105 |
+| SD | 0.0712 |
+| Min | 0.4206 |
 | Max | 1.0000 |
 
 ## Covariate Distributions
 
 | Variable | Mean | SD |
 |----------|------|-----|
-| Age (scaled) | 0.000 | 0.032 |
-| Attendance | 0.000 | 0.062 |
+| Age (scaled) | 0.000 | 0.024 |
+| Attendance | -0.000 | 0.062 |
 
 ## Missing Data Rates
 
 | Variable | Missing % |
 |----------|-----------|
-| glmath_scr_p0 | 4.43% |
+| glmath_scr_p0 | 4.49% |
 
 ## Gender Distribution
 
@@ -49,11 +49,11 @@
 
 | Category | N | % |
 |----------|---|---|
-| 4 | 0 | 0.0% |
 | 6 | 0 | 0.0% |
-| Unknown | 0 | 0.0% |
+| 4 | 0 | 0.0% |
 | 2 | 0 | 0.0% |
 | 3 | 0 | 0.0% |
-| 1 | 0 | 0.0% |
+| Unknown | 0 | 0.0% |
 | 5 | 0 | 0.0% |
+| 1 | 0 | 0.0% |
 

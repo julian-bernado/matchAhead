@@ -10,57 +10,57 @@ glmath_scr_p0 ~ (1 | dstschid_state_enroll_p0) + age + lep_ever + migrant_ever +
 
 | Metric | Value |
 |--------|-------|
-| Students | 19049 |
-| Schools | 230 |
+| Students | 37808 |
+| Schools | 460 |
 
 ## Fixed Effects
 
 | Term | Estimate | SE | t-value |
 |------|----------|-----|---------|
-| (Intercept) | 0.4392 | 0.2793 | 1.57 |
-| age | -0.0414 | 0.0160 | -2.58 |
-| lep_ever | -0.0155 | 0.0015 | -10.63 |
-| migrant_ever | 0.0048 | 0.0078 | 0.61 |
-| homeless_ever | -0.0120 | 0.0028 | -4.33 |
-| specialed_ever | -0.0644 | 0.0016 | -40.19 |
-| attend_p0 | 0.3390 | 0.0149 | 22.69 |
-| gender_2 | 0.0091 | 0.0010 | 8.87 |
-| raceth_4 | -0.0079 | 0.0069 | -1.14 |
-| raceth_Unknown | 0.0062 | 0.0076 | 0.82 |
-| raceth_6 | 0.0125 | 0.0070 | 1.80 |
-| raceth_2 | 0.0399 | 0.0074 | 5.40 |
-| raceth_3 | -0.0276 | 0.0071 | -3.90 |
-| raceth_5 | -0.0041 | 0.0138 | -0.30 |
-| avg_age | -0.4513 | 0.2602 | -1.73 |
-| avg_lep_ever | -0.0034 | 0.0104 | -0.33 |
-| avg_migrant_ever | -0.0509 | 0.0992 | -0.51 |
-| avg_homeless_ever | -0.0175 | 0.0263 | -0.66 |
-| avg_specialed_ever | -0.0409 | 0.0278 | -1.47 |
-| avg_attend_p0 | 0.6945 | 0.1858 | 3.74 |
-| avg_gender_2 | -0.0182 | 0.0257 | -0.71 |
-| avg_raceth_4 | -0.0002 | 0.0768 | -0.00 |
-| avg_raceth_Unknown | 0.0628 | 0.1078 | 0.58 |
-| avg_raceth_6 | 0.0163 | 0.0777 | 0.21 |
-| avg_raceth_2 | 0.0409 | 0.0795 | 0.51 |
-| avg_raceth_3 | -0.0420 | 0.0785 | -0.53 |
-| avg_raceth_5 | 0.0509 | 0.2837 | 0.18 |
+| (Intercept) | -0.0056 | 0.1810 | -0.03 |
+| age | -0.0366 | 0.0111 | -3.29 |
+| lep_ever | -0.0161 | 0.0010 | -15.82 |
+| migrant_ever | 0.0032 | 0.0056 | 0.57 |
+| homeless_ever | -0.0128 | 0.0019 | -6.73 |
+| specialed_ever | -0.0609 | 0.0011 | -54.51 |
+| attend_p0 | 0.3455 | 0.0105 | 33.02 |
+| gender_2 | 0.0089 | 0.0007 | 12.48 |
+| raceth_4 | -0.0088 | 0.0051 | -1.73 |
+| raceth_Unknown | 0.0030 | 0.0055 | 0.54 |
+| raceth_6 | 0.0105 | 0.0051 | 2.06 |
+| raceth_2 | 0.0403 | 0.0054 | 7.47 |
+| raceth_3 | -0.0313 | 0.0052 | -6.05 |
+| raceth_5 | 0.0053 | 0.0103 | 0.52 |
+| avg_age | -0.2000 | 0.1488 | -1.34 |
+| avg_lep_ever | -0.0134 | 0.0070 | -1.91 |
+| avg_migrant_ever | 0.0068 | 0.0742 | 0.09 |
+| avg_homeless_ever | -0.0366 | 0.0127 | -2.87 |
+| avg_specialed_ever | -0.0485 | 0.0176 | -2.75 |
+| avg_attend_p0 | 0.9208 | 0.1203 | 7.66 |
+| avg_gender_2 | 0.0174 | 0.0165 | 1.06 |
+| avg_raceth_4 | 0.0184 | 0.0660 | 0.28 |
+| avg_raceth_Unknown | 0.1053 | 0.0827 | 1.27 |
+| avg_raceth_6 | 0.0301 | 0.0667 | 0.45 |
+| avg_raceth_2 | 0.1035 | 0.0671 | 1.54 |
+| avg_raceth_3 | -0.0188 | 0.0668 | -0.28 |
+| avg_raceth_5 | -0.1203 | 0.2062 | -0.58 |
 
 ## Random Effects
 
 | Component | Variance | SD |
 |-----------|----------|-----|
-| School (Intercept) | 0.000468 | 0.0216 |
-| Residual | 0.004916 | 0.0701 |
+| School (Intercept) | 0.000419 | 0.0205 |
+| Residual | 0.004710 | 0.0686 |
 
-**ICC:** 0.0869
+**ICC:** 0.0818
 
 ## Model Fit
 
 | Metric | Value |
 |--------|-------|
-| AIC | -46487.92 |
-| BIC | -46260.14 |
-| Log-likelihood | 23272.96 |
+| AIC | -94114.92 |
+| BIC | -93867.26 |
+| Log-likelihood | 47086.46 |
 
 ## Convergence
 

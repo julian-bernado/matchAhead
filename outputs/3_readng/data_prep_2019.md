@@ -4,24 +4,24 @@
 
 | Metric | Value |
 |--------|-------|
-| Total students | 18619 |
-| Total schools | 230 |
+| Total students | 37192 |
+| Total schools | 460 |
 
 ## Students per School
 
 | Statistic | Value |
 |-----------|-------|
-| Mean | 81.0 |
-| SD | 41.5 |
-| Min | 2 |
-| Max | 262 |
+| Mean | 80.9 |
+| SD | 40.8 |
+| Min | 1 |
+| Max | 280 |
 
 ## Outcome Distribution (readng_scr_p0)
 
 | Statistic | Value |
 |-----------|-------|
-| Mean | 0.7328 |
-| SD | 0.0770 |
+| Mean | 0.7318 |
+| SD | 0.0767 |
 | Min | 0.3888 |
 | Max | 1.0000 |
 
@@ -29,28 +29,28 @@
 
 | Variable | Mean | SD |
 |----------|------|-----|
-| Age (scaled) | -0.000 | 0.035 |
-| Attendance | 0.000 | 0.039 |
+| Age (scaled) | 0.000 | 0.035 |
+| Attendance | -0.000 | 0.039 |
 
 ## Missing Data Rates
 
 | Variable | Missing % |
 |----------|-----------|
-| readng_scr_p0 | 5.77% |
+| readng_scr_p0 | 5.96% |
 
 ## Gender Distribution
 
 | Category | N | % |
 |----------|---|---|
-| 1 | 0 | 0.0% |
 | 2 | 0 | 0.0% |
+| 1 | 0 | 0.0% |
 
 ## Race/Ethnicity Distribution
 
 | Category | N | % |
 |----------|---|---|
-| 3 | 0 | 0.0% |
 | 6 | 0 | 0.0% |
+| 3 | 0 | 0.0% |
 | 4 | 0 | 0.0% |
 | 2 | 0 | 0.0% |
 | Unknown | 0 | 0.0% |

@@ -4,32 +4,32 @@
 
 | Metric | Value |
 |--------|-------|
-| Total pairs evaluated | 4853 |
-| Valid pairs (finite distance) | 4831 (99.5%) |
-| Distance mean | 0.1375 |
-| Distance SD | 0.0967 |
-| Distance median | 0.1295 |
-| Distance Q1 | 0.0629 |
-| Distance Q3 | 0.2091 |
-| Total time | 16.21 sec |
-| Time per pair | 0.0033 sec |
+| Total pairs evaluated | 6342 |
+| Valid pairs (finite distance) | 6327 (99.8%) |
+| Distance mean | 0.1272 |
+| Distance SD | 0.0968 |
+| Distance median | 0.1257 |
+| Distance Q1 | 0.0369 |
+| Distance Q3 | 0.2039 |
+| Total time | 27.53 sec |
+| Time per pair | 0.0043 sec |
 
 ## Pimentel
 
 | Metric | Value |
 |--------|-------|
-| Total pairs evaluated | 4853 |
-| Distance mean | 1.1910 |
-| Distance SD | 0.4247 |
-| Distance median | 1.1267 |
-| Total time | 232.93 sec |
-| Time per pair | 0.0480 sec |
+| Total pairs evaluated | 6342 |
+| Distance mean | 1.1531 |
+| Distance SD | 0.4289 |
+| Distance median | 1.0496 |
+| Total time | 307.78 sec |
+| Time per pair | 0.0485 sec |
 
 ## Comparison
 
 | Metric | Value |
 |--------|-------|
-| Pairs excluded by caliper | 0.5% |
-| Distance correlation | -0.466 |
-| Speedup factor | 14.4x |
+| Pairs excluded by caliper | 0.2% |
+| Distance correlation | -0.480 |
+| Speedup factor | 11.2x |
 
