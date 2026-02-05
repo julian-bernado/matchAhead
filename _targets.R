@@ -16,7 +16,7 @@ tar_option_set(packages = c("propertee"))
 tar_source("R/")
 
 # Number of cores for parallel processing (evaluated once at pipeline definition)
-n_cores <- 24 
+n_cores <- 14
 
 # Alpha values to sweep (single value or sequence)
 alphas <- 0.5
@@ -29,11 +29,11 @@ base_config <- list(
   model_year = "2019",
   pred_year = "2022",
   max_controls = 5,
-  prop_treatment = 0.03,
+  prop_treatment = 0.10,
   sample_prop = 0.1,
   seed = 2026,
   cores = n_cores,
-  synthetic_effect = 0.0
+  synthetic_effect = 0.2
 )
 
 # identity function that creates dependency without using the value
@@ -231,13 +231,13 @@ make_chain <- function(grade, subject, alpha, gate = NULL, base_config) {
     tar_target_raw(
       paste0("effect_ma_", s),
       substitute(estimate_treatment_effect_full(match, data, subj, se),
-                 list(match = sym(paste0("student_match_ma_", s)), data = sym(paste0("cleaned_data_", s, "_", pred_year)),
+                 list(match = sym(paste0("student_match_ma_", s)), data = sym(paste0("cleaned_data_", s, "_2022")),
                       subj = subject, se = config$synthetic_effect))
     ),
     tar_target_raw(
       paste0("effect_pim_", s),
       substitute(estimate_treatment_effect_full(match, data, subj, se),
-                 list(match = sym(paste0("student_match_pim_", s)), data = sym(paste0("cleaned_data_", s, "_", pred_year)),
+                 list(match = sym(paste0("student_match_pim_", s)), data = sym(paste0("cleaned_data_", s, "_2022")),
                       subj = subject, se = config$synthetic_effect))
     ),
     tar_target_raw(

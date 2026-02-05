@@ -64,7 +64,7 @@ conditional_var <- function(model) {
     var_g <- 1e-10  # Small regularization
   }
 
-  G_inv <- (var_g)^(-1) * diag(nrow = q)
+  G_inv <- (var_g)^(-1) * Matrix::Diagonal(n = q)
   B <- Matrix::bdiag(matrix(0, nrow = p, ncol = p), G_inv)
 
   # Use Matrix::t() for sparse matrix transpose
@@ -93,10 +93,18 @@ get_se <- function(model) {
   Z <- lme4::getME(model, "Z")
   Y <- cbind(X, Z)
 
-  # Efficient trace calculation using identity: trace(A %*% t(Y) %*% Y) = sum((Y %*% A) * Y)
+  # Old procedure that gave memory error on full run:
+  # ---
+  # Efficient trace calculation using identity
+  # trace(A %*% t(Y) %*% Y) = sum((Y %*% A) * Y)
   # This avoids creating the n×n matrix
-  temp <- Y %*% cond_var
-  trace_term <- sum(temp * Y)
+  # temp <- Y %*% cond_var
+  # trace_term <- sum(temp * Y)
+  # ---
+  # New correct procedure:
+  # trace(A %*% Y'Y) = sum(A * Y'Y) since both A and Y'Y are symmetric.
+  # crossprod(Y) is (p+q) x (p+q) instead of the n x (p+q) intermediate from Y %*% A
+  trace_term <- sum(cond_var * Matrix::crossprod(Y))
 
   Y_sum <- Matrix::colSums(Y)
   cross_term <- as.numeric(t(Y_sum) %*% cond_var %*% Y_sum)
