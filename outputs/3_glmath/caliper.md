@@ -4,8 +4,8 @@
 
 | Parameter | Value |
 |-----------|-------|
-| Caliper | 0.044202 |
-| Standard Error | 0.009326 |
-| Bonferroni z-score | 4.7399 |
-| Sample size (n) | 37808 |
+| Caliper | 0.044275 |
+| Standard Error | 0.008508 |
+| Bonferroni z-score | 5.2040 |
+| Sample size (n) | 379935 |
 
