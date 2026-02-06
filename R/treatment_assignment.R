@@ -44,7 +44,7 @@ assign_treatment <- function(school_ids, prop_treatment = 0.10, seed = 2025) {
 #' @param seed Random seed for reproducibility
 #' @return Data frame with school_id and treatment columns
 assign_treatment_from_data <- function(cleaned_data, prop_treatment = 0.10, seed = 2025) {
-  school_ids <- unique(cleaned_data$dstschid_state_enroll_p0)
+  school_ids <- as.character(unique(cleaned_data$dstschid_state_enroll_p0))
   assign_treatment(school_ids, prop_treatment, seed)
 }
 
