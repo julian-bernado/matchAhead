@@ -9,6 +9,13 @@
 distances_to_matrix <- function(distances, treatment_assignment) {
   tc <- get_treatment_control_schools(treatment_assignment)
 
+  # Drop pairs involving blank school IDs (students with missing school assignment)
+  valid <- distances$school_1 != "" & distances$school_2 != ""
+  if (any(!valid)) {
+    message(sprintf("distances_to_matrix: dropping %d pairs with blank school IDs", sum(!valid)))
+    distances <- distances[valid, ]
+  }
+
   # Pivot to wide format
   dist_wide <- reshape(
     distances[, c("school_1", "school_2", "distance")],
@@ -25,9 +32,11 @@ distances_to_matrix <- function(distances, treatment_assignment) {
   # Clean column names (remove "distance." prefix)
   colnames(dist_mat) <- sub("^distance\\.", "", colnames(dist_mat))
 
-  # Reorder to ensure treatment rows and control columns
-  t_schools <- intersect(tc$treatment_schools, rownames(dist_mat))
-  c_schools <- intersect(tc$control_schools, colnames(dist_mat))
+  # Filter valid treatment/control schools (exclude blank IDs)
+  t_schools <- intersect(tc$treatment_schools[tc$treatment_schools != ""],
+                         rownames(dist_mat))
+  c_schools <- intersect(tc$control_schools[tc$control_schools != ""],
+                         colnames(dist_mat))
 
   dist_mat <- dist_mat[t_schools, c_schools, drop = FALSE]
 
