@@ -181,13 +181,55 @@ dist_mat <- as.matrix(dist_wide[, -1])
 rownames(dist_mat) <- row_names
 colnames(dist_mat) <- sub("^distance\\.", "", colnames(dist_mat))
 
+cat("  as.matrix dim:", nrow(dist_mat), "x", ncol(dist_mat), "\n")
+cat("  rownames unique?", !any(duplicated(rownames(dist_mat))), "\n")
+cat("  colnames unique?", !any(duplicated(colnames(dist_mat))), "\n")
+cat("  n rownames:", length(rownames(dist_mat)), "\n")
+cat("  n colnames:", length(colnames(dist_mat)), "\n")
+cat("  rownames sample:", head(rownames(dist_mat), 3), "\n")
+cat("  colnames sample:", head(colnames(dist_mat), 3), "\n")
+cat("  any NA in rownames:", any(is.na(rownames(dist_mat))), "\n")
+cat("  any NA in colnames:", any(is.na(colnames(dist_mat))), "\n")
+cat("  any '' in rownames:", any(rownames(dist_mat) == ""), "\n")
+cat("  any '' in colnames:", any(colnames(dist_mat) == ""), "\n")
+
 t_in_rows <- intersect(t_schools, rownames(dist_mat))
 c_in_cols <- intersect(c_schools, colnames(dist_mat))
 cat("  treatment in rows:", length(t_in_rows), "\n")
 cat("  control in cols:  ", length(c_in_cols), "\n")
+cat("  any NA in t_in_rows:", any(is.na(t_in_rows)), "\n")
+cat("  any NA in c_in_cols:", any(is.na(c_in_cols)), "\n")
 
-dist_mat <- dist_mat[t_in_rows, c_in_cols, drop = FALSE]
-cat("  final dim:", nrow(dist_mat), "x", ncol(dist_mat), "\n")
+# Try row-only and col-only indexing first to isolate the failure
+cat("\n  Testing row-only indexing...\n")
+tryCatch({
+  test_rows <- dist_mat[t_in_rows, , drop = FALSE]
+  cat("    row indexing OK:", nrow(test_rows), "x", ncol(test_rows), "\n")
+}, error = function(e) cat("    ** ROW indexing failed:", conditionMessage(e), "**\n"))
+
+cat("  Testing col-only indexing...\n")
+tryCatch({
+  test_cols <- dist_mat[, c_in_cols, drop = FALSE]
+  cat("    col indexing OK:", nrow(test_cols), "x", ncol(test_cols), "\n")
+}, error = function(e) cat("    ** COL indexing failed:", conditionMessage(e), "**\n"))
+
+cat("  Testing combined indexing...\n")
+tryCatch({
+  dist_mat <- dist_mat[t_in_rows, c_in_cols, drop = FALSE]
+  cat("    combined indexing OK:", nrow(dist_mat), "x", ncol(dist_mat), "\n")
+}, error = function(e) {
+  cat("    ** COMBINED indexing failed:", conditionMessage(e), "**\n")
+  # Check if any t_in_rows are numeric-looking and colnames are character
+  cat("    typeof(t_in_rows):", typeof(t_in_rows), "\n")
+  cat("    typeof(c_in_cols):", typeof(c_in_cols), "\n")
+  # Try numeric indexing as workaround
+  row_idx <- match(t_in_rows, rownames(dist_mat))
+  col_idx <- match(c_in_cols, colnames(dist_mat))
+  cat("    row_idx range:", range(row_idx, na.rm = TRUE), " any NA:", any(is.na(row_idx)), "\n")
+  cat("    col_idx range:", range(col_idx, na.rm = TRUE), " any NA:", any(is.na(col_idx)), "\n")
+  dist_mat <<- dist_mat[row_idx, col_idx, drop = FALSE]
+  cat("    numeric indexing OK:", nrow(dist_mat), "x", ncol(dist_mat), "\n")
+})
 
 # Step 9b: Inf replacement
 cat("\n9b. Inf replacement...\n")
