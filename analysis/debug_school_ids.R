@@ -131,56 +131,154 @@ all_char <- all(id_types$class == "character")
 cat("All character?", all_char, "\n")
 if (!all_char) cat("** WARNING: mixed types may cause matching failures **\n")
 
-# ---- 8. Reproduce the pivot that fails in match_schools ----
-cat("\n=== 8. Reproducing distances_to_matrix() for Pimentel ===\n")
-tryCatch({
-  dist_wide <- reshape(
-    dist_pim[, c("school_1", "school_2", "distance")],
-    idvar = "school_1",
-    timevar = "school_2",
-    direction = "wide"
-  )
-  cat("reshape succeeded: ", nrow(dist_wide), "rows x", ncol(dist_wide), "cols\n")
+# ---- 8. Pimentel Inf analysis ----
+# 322,747 Inf distances is 50% — very suspicious for an uncalipered method
+cat("\n=== 8. Pimentel Inf distance analysis ===\n")
 
-  row_names <- dist_wide$school_1
-  dist_mat <- as.matrix(dist_wide[, -1])
-  rownames(dist_mat) <- row_names
-  colnames(dist_mat) <- sub("^distance\\.", "", colnames(dist_mat))
+# Which component (bias, ess) is causing the Inf?
+cat("Pimentel bias Inf count:", sum(is.infinite(dist_pim$bias)), "\n")
+cat("Pimentel ess Inf count: ", sum(is.infinite(dist_pim$ess)), "\n")
+cat("Pimentel bias == 0 count:", sum(dist_pim$bias == 0, na.rm = TRUE), "\n")
+cat("Pimentel ess == 0 count: ", sum(dist_pim$ess == 0, na.rm = TRUE), "\n")
 
-  t_in_rows <- intersect(t_schools, rownames(dist_mat))
-  c_in_cols <- intersect(c_schools, colnames(dist_mat))
-  cat("treatment schools in rows:", length(t_in_rows), "/", length(t_schools), "\n")
-  cat("control schools in cols: ", length(c_in_cols), "/", length(c_schools), "\n")
+# distance = sqrt(bias^alpha * ess^(1-alpha)), so Inf if either component is Inf
+# bias is Inf when total_weighted_diff == 0 (perfect match) — see lines 109-113
+# ess is Inf when ess_sum == 0 (no matched members) — see lines 115-118
 
-  if (length(t_in_rows) == 0 || length(c_in_cols) == 0) {
-    cat("** PROBLEM: empty matrix after subsetting — IDs don't match **\n")
-  }
+# Per-treatment-school: how many controls have Inf distance?
+cat("\nPer-treatment-school Inf rates:\n")
+inf_by_treat <- tapply(is.infinite(dist_pim$distance), dist_pim$school_1, sum)
+cat("treatment schools where ALL controls are Inf:",
+    sum(inf_by_treat == length(c_schools)), "/", length(t_schools), "\n")
+cat("treatment schools with >50% Inf controls:",
+    sum(inf_by_treat > length(c_schools) / 2), "/", length(t_schools), "\n")
+cat("distribution of Inf counts per treatment school:\n")
+print(summary(as.numeric(inf_by_treat)))
 
-  dist_mat <- dist_mat[t_in_rows, c_in_cols, drop = FALSE]
-  cat("final matrix dim:", dim(dist_mat), "\n")
+# Compare: which component is driving it?
+both_inf <- sum(is.infinite(dist_pim$bias) & is.infinite(dist_pim$ess))
+only_bias_inf <- sum(is.infinite(dist_pim$bias) & !is.infinite(dist_pim$ess))
+only_ess_inf <- sum(!is.infinite(dist_pim$bias) & is.infinite(dist_pim$ess))
+cat("\nboth bias & ess Inf:", both_inf, "\n")
+cat("only bias Inf:", only_bias_inf, "\n")
+cat("only ess Inf: ", only_ess_inf, "\n")
 
-  # Check for all-Inf rows/cols
-  all_inf_rows <- apply(dist_mat, 1, function(x) all(is.infinite(x)))
-  all_inf_cols <- apply(dist_mat, 2, function(x) all(is.infinite(x)))
-  cat("rows where all distances are Inf:", sum(all_inf_rows), "\n")
-  cat("cols where all distances are Inf:", sum(all_inf_cols), "\n")
+# ---- 9. Step-by-step reproduction of match_schools() for Pimentel ----
+cat("\n=== 9. Step-by-step match_schools() reproduction ===\n")
 
-  # Try pairmatch
-  cat("\n=== 9. Attempting pairmatch on Pimentel distances ===\n")
+# Step 9a: distances_to_matrix
+cat("9a. reshape...\n")
+dist_wide <- reshape(
+  dist_pim[, c("school_1", "school_2", "distance")],
+  idvar = "school_1",
+  timevar = "school_2",
+  direction = "wide"
+)
+cat("  reshape: ", nrow(dist_wide), "rows x", ncol(dist_wide), "cols\n")
+
+row_names <- dist_wide$school_1
+dist_mat <- as.matrix(dist_wide[, -1])
+rownames(dist_mat) <- row_names
+colnames(dist_mat) <- sub("^distance\\.", "", colnames(dist_mat))
+
+t_in_rows <- intersect(t_schools, rownames(dist_mat))
+c_in_cols <- intersect(c_schools, colnames(dist_mat))
+cat("  treatment in rows:", length(t_in_rows), "\n")
+cat("  control in cols:  ", length(c_in_cols), "\n")
+
+dist_mat <- dist_mat[t_in_rows, c_in_cols, drop = FALSE]
+cat("  final dim:", nrow(dist_mat), "x", ncol(dist_mat), "\n")
+
+# Step 9b: Inf replacement
+cat("\n9b. Inf replacement...\n")
+n_inf <- sum(!is.finite(dist_mat))
+cat("  non-finite entries:", n_inf, "/", length(dist_mat), "\n")
+
+any_finite <- any(is.finite(dist_mat))
+cat("  any finite values?", any_finite, "\n")
+if (any_finite) {
   max_finite <- max(dist_mat[is.finite(dist_mat)], na.rm = TRUE)
+  cat("  max finite:", max_finite, "\n")
   large_val <- max_finite * 1000
   dist_mat[!is.finite(dist_mat)] <- large_val
+} else {
+  cat("  ** ALL values are non-finite — this will break pairmatch **\n")
+}
 
-  nt <- nrow(dist_mat)
-  nc <- ncol(dist_mat)
-  cat("nt (treatment):", nt, " nc (control):", nc, "\n")
+nt <- nrow(dist_mat)
+nc <- ncol(dist_mat)
 
+# Step 9c: match_on
+cat("\n9c. optmatch::match_on...\n")
+tryCatch({
   dist_obj <- optmatch::match_on(dist_mat)
-  pm <- optmatch::pairmatch(dist_obj, controls = 1, data = NULL)
-  cat("pairmatch succeeded! n matched:", sum(!is.na(pm)), "\n")
-
+  cat("  match_on succeeded\n")
 }, error = function(e) {
-  cat("** ERROR during reproduction:", conditionMessage(e), "**\n")
+  cat("  ** match_on ERROR:", conditionMessage(e), "**\n")
 })
+
+# Step 9d: pairmatch
+cat("\n9d. optmatch::pairmatch...\n")
+pm <- NULL
+tryCatch({
+  pm <- optmatch::pairmatch(dist_obj, controls = 1, data = NULL)
+  cat("  pairmatch succeeded, length:", length(pm), "\n")
+  cat("  n matched:", sum(!is.na(pm)), "\n")
+  cat("  n unmatched:", sum(is.na(pm)), "\n")
+}, error = function(e) {
+  cat("  ** pairmatch ERROR:", conditionMessage(e), "**\n")
+})
+
+# Step 9e: parse results (where the actual subscript error likely lives)
+if (!is.null(pm)) {
+  cat("\n9e. Parsing matched pairs...\n")
+  matched <- !is.na(pm)
+  strata <- unique(pm[matched])
+  cat("  n strata:", length(strata), "\n")
+  cat("  strata sample:", head(strata, 5), "\n")
+  cat("  names(pm) sample:", head(names(pm), 10), "\n")
+  cat("  names(pm) in dist_mat rownames:", sum(names(pm) %in% rownames(dist_mat)), "\n")
+  cat("  names(pm) in dist_mat colnames:", sum(names(pm) %in% colnames(dist_mat)), "\n")
+
+  # Check: do pm names match the matrix row/col names?
+  pm_names <- names(pm)
+  expected_names <- c(rownames(dist_mat), colnames(dist_mat))
+  missing_from_expected <- setdiff(pm_names, expected_names)
+  cat("  pm names NOT in matrix row/colnames:", length(missing_from_expected), "\n")
+  if (length(missing_from_expected) > 0) {
+    cat("    examples:", head(missing_from_expected, 5), "\n")
+    cat("    ** This is likely the cause of 'subscript out of bounds' **\n")
+  }
+
+  # Try the for loop one iteration at a time
+  cat("\n  Testing for-loop parsing (first 5 strata):\n")
+  treatment_school <- character(length(strata))
+  control_school <- character(length(strata))
+  match_distance <- numeric(length(strata))
+
+  for (i in seq_along(strata)) {
+    tryCatch({
+      members <- names(pm)[pm == strata[i] & !is.na(pm)]
+      t_member <- members[members %in% rownames(dist_mat)]
+      c_member <- members[members %in% colnames(dist_mat)]
+
+      if (i <= 5) {
+        cat(sprintf("    stratum %s: %d members, %d treat, %d ctrl\n",
+                    strata[i], length(members), length(t_member), length(c_member)))
+      }
+
+      if (length(t_member) == 1 && length(c_member) == 1) {
+        treatment_school[i] <- t_member
+        control_school[i] <- c_member
+        match_distance[i] <- dist_mat[t_member, c_member]
+      }
+    }, error = function(e) {
+      cat(sprintf("    ** stratum %s ERROR: %s **\n", strata[i], conditionMessage(e)))
+    })
+  }
+
+  valid <- treatment_school != ""
+  cat("\n  valid pairs:", sum(valid), "/", length(strata), "\n")
+}
 
 cat("\nDone.\n")
