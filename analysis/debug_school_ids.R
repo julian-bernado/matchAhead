@@ -176,12 +176,57 @@ dist_wide <- reshape(
 )
 cat("  reshape: ", nrow(dist_wide), "rows x", ncol(dist_wide), "cols\n")
 
+# Inspect the raw reshape output BEFORE any transformation
+raw_names <- names(dist_wide)
+cat("  dist_wide column names (first 10):\n")
+for (i in seq_len(min(10, length(raw_names)))) {
+  cat(sprintf("    [%d] '%s'\n", i, raw_names[i]))
+}
+cat("  dist_wide column names (last 5):\n")
+for (i in seq(max(1, length(raw_names) - 4), length(raw_names))) {
+  cat(sprintf("    [%d] '%s'\n", i, raw_names[i]))
+}
+
+# Find any column NOT matching the expected pattern "school_1" or "distance.{something}"
+unexpected <- raw_names[raw_names != "school_1" & !grepl("^distance\\..+$", raw_names)]
+cat("  columns NOT matching 'school_1' or 'distance.{id}':", length(unexpected), "\n")
+if (length(unexpected) > 0) {
+  for (u in unexpected) cat(sprintf("    suspect column: '%s'\n", u))
+}
+
+# What is the content of the suspect column?
+if (length(unexpected) > 0) {
+  for (u in unexpected) {
+    vals <- dist_wide[[u]]
+    cat(sprintf("    column '%s': class=%s, head=%s\n", u, class(vals)[1],
+                paste(head(vals, 3), collapse = ", ")))
+  }
+}
+
+# Also check: does reshape add a "reshapeWide" attribute?
+cat("  reshape attributes:", paste(names(attributes(dist_wide)), collapse = ", "), "\n")
+
+# Now check if matchAhead has the same issue
+cat("\n  Checking matchAhead reshape for comparison...\n")
+dist_wide_ma <- reshape(
+  dist_ma[, c("school_1", "school_2", "distance")],
+  idvar = "school_1",
+  timevar = "school_2",
+  direction = "wide"
+)
+raw_names_ma <- names(dist_wide_ma)
+unexpected_ma <- raw_names_ma[raw_names_ma != "school_1" & !grepl("^distance\\..+$", raw_names_ma)]
+cat("  matchAhead unexpected columns:", length(unexpected_ma), "\n")
+if (length(unexpected_ma) > 0) {
+  for (u in unexpected_ma) cat(sprintf("    suspect column: '%s'\n", u))
+}
+
 row_names <- dist_wide$school_1
 dist_mat <- as.matrix(dist_wide[, -1])
 rownames(dist_mat) <- row_names
 colnames(dist_mat) <- sub("^distance\\.", "", colnames(dist_mat))
 
-cat("  as.matrix dim:", nrow(dist_mat), "x", ncol(dist_mat), "\n")
+cat("\n  as.matrix dim:", nrow(dist_mat), "x", ncol(dist_mat), "\n")
 cat("  rownames unique?", !any(duplicated(rownames(dist_mat))), "\n")
 cat("  colnames unique?", !any(duplicated(colnames(dist_mat))), "\n")
 cat("  n rownames:", length(rownames(dist_mat)), "\n")
