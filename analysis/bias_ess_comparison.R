@@ -73,6 +73,8 @@ make_parity_panel <- function(df, x_col, y_col, x_lab, y_lab, title, better_note
     color = subject,
     shape = grade
   )) +
+    geom_abline(slope = 1, intercept = 0, linetype = "dashed",
+                color = "gray50", linewidth = 0.6) +
     geom_point(size = 3) +
     geom_text_repel(aes(label = label), size = 3.2, max.overlaps = 20) +
     scale_color_manual(values = subject_colors, labels = subject_labels) +
@@ -88,29 +90,29 @@ make_parity_panel <- function(df, x_col, y_col, x_lab, y_lab, title, better_note
     ) +
     theme_minimal(base_size = 11) +
     theme(
-      legend.position  = "bottom",
-      plot.subtitle    = element_text(size = 9, color = "gray40")
+      legend.position = "bottom",
+      plot.subtitle   = element_text(size = 9, color = "gray40")
     )
 }
 
 if (nrow(agg_data) > 0) {
   p_bias <- make_parity_panel(
     agg_data,
-    x_col      = "bias_pim",
-    y_col      = "bias_ma",
-    x_lab      = "Pimentel weighted bias",
-    y_lab      = "matchAhead weighted bias",
-    title      = "Weighted Bias",
+    x_col       = "bias_pim",
+    y_col       = "bias_ma",
+    x_lab       = "Pimentel weighted bias",
+    y_lab       = "matchAhead weighted bias",
+    title       = "Weighted Bias",
     better_note = "Below diagonal: matchAhead lower bias"
   )
 
   p_ess <- make_parity_panel(
     agg_data,
-    x_col      = "ess_pim",
-    y_col      = "ess_ma",
-    x_lab      = "Pimentel ESS",
-    y_lab      = "matchAhead ESS",
-    title      = "Effective Sample Size",
+    x_col       = "ess_pim",
+    y_col       = "ess_ma",
+    x_lab       = "Pimentel ESS",
+    y_lab       = "matchAhead ESS",
+    title       = "Effective Sample Size",
     better_note = "Above diagonal: matchAhead higher ESS"
   )
 
@@ -125,7 +127,7 @@ if (nrow(agg_data) > 0) {
   message("No aggregate data available; skipping bias_ess_comparison.png")
 }
 
-# ─── Section 3: Collect pair-level distance data ───────────────────────────────
+# ─── Section 3: Collect pair-level data ───────────────────────────────────────
 
 pair_data <- lapply(grade_subjects, function(gs) {
   grade   <- gs[1]
@@ -142,18 +144,17 @@ pair_data <- lapply(grade_subjects, function(gs) {
     match_ma <- tar_read_raw(mma_name)
     match_pi <- tar_read_raw(mpi_name)
 
-    # Join on (school_1, school_2)
+    # Join on (school_1, school_2), pulling distance, bias, and ESS from both
     joined <- inner_join(
-      ma_dist  |> select(school_1, school_2, ma_dist  = distance),
-      pim_dist |> select(school_1, school_2, pim_dist = distance),
+      ma_dist  |> select(school_1, school_2,
+                         ma_dist = distance, ma_bias = bias, ma_ess = ess),
+      pim_dist |> select(school_1, school_2,
+                         pim_dist = distance, pim_bias = bias, pim_ess = ess),
       by = c("school_1", "school_2")
     )
 
-    # Drop pairs where either distance is Inf (calipered out)
-    joined <- joined |> filter(is.finite(ma_dist), is.finite(pim_dist))
-
     # Build set of matched pair keys for each method
-    # school_1 = treatment school, school_2 = control school (consistent with distances_to_matrix)
+    # school_1 = treatment school, school_2 = control school
     ma_pairs  <- paste(match_ma$treatment_school, match_ma$control_school, sep = "__")
     pim_pairs <- paste(match_pi$treatment_school, match_pi$control_school, sep = "__")
     pair_keys <- paste(joined$school_1, joined$school_2, sep = "__")
@@ -172,10 +173,6 @@ pair_data <- lapply(grade_subjects, function(gs) {
       levels = c("Both", "MA only", "Pim only", "Neither")
     )
 
-    # Rank within this grade/subject
-    joined$rank_ma  <- rank(joined$ma_dist,  ties.method = "average")
-    joined$rank_pim <- rank(joined$pim_dist, ties.method = "average")
-
     joined$grade   <- grade
     joined$subject <- subject
     joined$label   <- paste0("Grade ", grade, " ", subject_labels[subject])
@@ -189,21 +186,19 @@ pair_data <- lapply(grade_subjects, function(gs) {
 
 pair_data$label <- factor(pair_data$label, levels = label_order)
 
-# ─── Section 4: Distance scatter helper ───────────────────────────────────────
+# ─── Section 4: Helpers ───────────────────────────────────────────────────────
 
-#' Make a distance scatter plot (raw or rank)
-#'
-#' @param df       data frame with x_col, y_col, match_status, label
-#' @param x_col    column for x-axis (ma_dist or rank_ma)
-#' @param y_col    column for y-axis (pim_dist or rank_pim)
-#' @param x_lab    x-axis label
-#' @param y_lab    y-axis label
-#' @param title    plot title
-#' @param facet    logical; add facet_wrap by label?
-#' @param pt_alpha point transparency
-#' @param pt_size  point size
-make_distance_scatter <- function(df, x_col, y_col, x_lab, y_lab, title,
-                                  facet = TRUE, pt_alpha = 0.4, pt_size = 1.0) {
+# Filter to finite values of x_col and y_col, add rank_x / rank_y columns.
+prep_metric <- function(df, x_col, y_col) {
+  df <- df |> filter(is.finite(.data[[x_col]]), is.finite(.data[[y_col]]))
+  df$rank_x <- rank(df[[x_col]], ties.method = "average")
+  df$rank_y <- rank(df[[y_col]], ties.method = "average")
+  df
+}
+
+# Scatter plot for a pair-level metric (raw or rank columns).
+make_scatter <- function(df, x_col, y_col, x_lab, y_lab, title,
+                         facet = TRUE, pt_alpha = 0.4, pt_size = 1.0) {
   p <- ggplot(df, aes(
     x     = .data[[x_col]],
     y     = .data[[y_col]],
@@ -223,73 +218,80 @@ make_distance_scatter <- function(df, x_col, y_col, x_lab, y_lab, title,
     theme_minimal(base_size = 11) +
     theme(legend.position = "bottom")
 
-  if (facet) {
-    p <- p + facet_wrap(~ label)
-  }
+  if (facet) p <- p + facet_wrap(~ label)
 
   p
+}
+
+# Save the 4 standard variants (raw/rank × all/matched) for one metric.
+save_metric_plots <- function(df, x_col, y_col, x_lab, y_lab,
+                               prefix, title_stem,
+                               out_dir  = "plots",
+                               facet    = TRUE,
+                               pt_alpha = 0.4,
+                               pt_size  = 1.0) {
+  w <- if (facet) 14 else 7
+  h <- if (facet) 8  else 6
+
+  d <- prep_metric(df, x_col, y_col)
+  m <- d |> filter(match_status != "Neither")
+
+  ggsave(
+    file.path(out_dir, paste0(prefix, "_raw_all_pairs.png")),
+    make_scatter(d, x_col, y_col,
+      x_lab = paste("matchAhead", x_lab), y_lab = paste("Pimentel", y_lab),
+      title = paste0(title_stem, ": matchAhead vs Pimentel (all pairs)"),
+      facet = facet, pt_alpha = pt_alpha, pt_size = pt_size),
+    width = w, height = h, dpi = 150
+  )
+
+  if (nrow(m) > 0) {
+    ggsave(
+      file.path(out_dir, paste0(prefix, "_raw_matched_pairs.png")),
+      make_scatter(m, x_col, y_col,
+        x_lab = paste("matchAhead", x_lab), y_lab = paste("Pimentel", y_lab),
+        title = paste0(title_stem, ": matchAhead vs Pimentel (matched pairs only)"),
+        facet = facet, pt_alpha = pt_alpha, pt_size = pt_size),
+      width = w, height = h, dpi = 150
+    )
+  }
+
+  ggsave(
+    file.path(out_dir, paste0(prefix, "_rank_all_pairs.png")),
+    make_scatter(d, "rank_x", "rank_y",
+      x_lab = paste0("Rank(matchAhead ", x_lab, ")"),
+      y_lab = paste0("Rank(Pimentel ", y_lab, ")"),
+      title = paste0(title_stem, " ranks: matchAhead vs Pimentel (all pairs)"),
+      facet = facet, pt_alpha = pt_alpha, pt_size = pt_size),
+    width = w, height = h, dpi = 150
+  )
+
+  if (nrow(m) > 0) {
+    ggsave(
+      file.path(out_dir, paste0(prefix, "_rank_matched_pairs.png")),
+      make_scatter(m, "rank_x", "rank_y",
+        x_lab = paste0("Rank(matchAhead ", x_lab, ")"),
+        y_lab = paste0("Rank(Pimentel ", y_lab, ")"),
+        title = paste0(title_stem, " ranks: matchAhead vs Pimentel (matched pairs only)"),
+        facet = facet, pt_alpha = pt_alpha, pt_size = pt_size),
+      width = w, height = h, dpi = 150
+    )
+  }
+
+  message("Saved ", prefix, " plots to ", out_dir)
 }
 
 # ─── Section 5: Combined plots (all 6 grade/subjects, faceted) ─────────────────
 
 if (nrow(pair_data) > 0) {
-
-  matched_data <- pair_data |> filter(match_status != "Neither")
-
-  # 5a. All pairs — raw distance
-  ggsave(
-    "plots/distance_raw_all_pairs.png",
-    make_distance_scatter(
-      pair_data, "ma_dist", "pim_dist",
-      x_lab = "matchAhead distance",
-      y_lab = "Pimentel distance",
-      title = "School-pair distances: matchAhead vs Pimentel (all pairs)"
-    ),
-    width = 14, height = 8, dpi = 150
-  )
-  message("Saved plots/distance_raw_all_pairs.png")
-
-  # 5b. Matched pairs only — raw distance
-  ggsave(
-    "plots/distance_raw_matched_pairs.png",
-    make_distance_scatter(
-      matched_data, "ma_dist", "pim_dist",
-      x_lab = "matchAhead distance",
-      y_lab = "Pimentel distance",
-      title = "School-pair distances: matchAhead vs Pimentel (matched pairs only)"
-    ),
-    width = 14, height = 8, dpi = 150
-  )
-  message("Saved plots/distance_raw_matched_pairs.png")
-
-  # 5c. All pairs — rank distance
-  ggsave(
-    "plots/distance_rank_all_pairs.png",
-    make_distance_scatter(
-      pair_data, "rank_ma", "rank_pim",
-      x_lab = "Rank(matchAhead distance)",
-      y_lab = "Rank(Pimentel distance)",
-      title = "School-pair distance ranks: matchAhead vs Pimentel (all pairs)"
-    ),
-    width = 14, height = 8, dpi = 150
-  )
-  message("Saved plots/distance_rank_all_pairs.png")
-
-  # 5d. Matched pairs only — rank distance
-  ggsave(
-    "plots/distance_rank_matched_pairs.png",
-    make_distance_scatter(
-      matched_data, "rank_ma", "rank_pim",
-      x_lab = "Rank(matchAhead distance)",
-      y_lab = "Rank(Pimentel distance)",
-      title = "School-pair distance ranks: matchAhead vs Pimentel (matched pairs only)"
-    ),
-    width = 14, height = 8, dpi = 150
-  )
-  message("Saved plots/distance_rank_matched_pairs.png")
-
+  save_metric_plots(pair_data, "ma_dist", "pim_dist", "distance", "distance",
+                    prefix = "distance", title_stem = "School-pair distances")
+  save_metric_plots(pair_data, "ma_bias", "pim_bias", "bias",     "bias",
+                    prefix = "bias",     title_stem = "School-pair bias")
+  save_metric_plots(pair_data, "ma_ess",  "pim_ess",  "ESS",      "ESS",
+                    prefix = "ess",      title_stem = "School-pair ESS")
 } else {
-  message("No pair data available; skipping distance scatter plots")
+  message("No pair data available; skipping pair-level scatter plots")
 }
 
 # ─── Section 6: Per-combo plots (one directory per grade/subject) ──────────────
@@ -307,74 +309,17 @@ for (gs in grade_subjects) {
     next
   }
 
-  matched_combo <- df_combo |> filter(match_status != "Neither")
-  combo_label   <- unique(df_combo$label)
+  title_stem <- as.character(unique(df_combo$label))
 
-  # raw — all pairs
-  ggsave(
-    file.path(out_dir, "distance_raw_all_pairs.png"),
-    make_distance_scatter(
-      df_combo, "ma_dist", "pim_dist",
-      x_lab    = "matchAhead distance",
-      y_lab    = "Pimentel distance",
-      title    = paste0(combo_label, " \u2014 all pairs"),
-      facet    = FALSE,
-      pt_alpha = 0.5,
-      pt_size  = 1.2
-    ),
-    width = 7, height = 6, dpi = 150
-  )
-
-  # raw — matched pairs
-  if (nrow(matched_combo) > 0) {
-    ggsave(
-      file.path(out_dir, "distance_raw_matched_pairs.png"),
-      make_distance_scatter(
-        matched_combo, "ma_dist", "pim_dist",
-        x_lab    = "matchAhead distance",
-        y_lab    = "Pimentel distance",
-        title    = paste0(combo_label, " \u2014 matched pairs only"),
-        facet    = FALSE,
-        pt_alpha = 0.5,
-        pt_size  = 1.2
-      ),
-      width = 7, height = 6, dpi = 150
-    )
-  }
-
-  # rank — all pairs
-  ggsave(
-    file.path(out_dir, "distance_rank_all_pairs.png"),
-    make_distance_scatter(
-      df_combo, "rank_ma", "rank_pim",
-      x_lab    = "Rank(matchAhead distance)",
-      y_lab    = "Rank(Pimentel distance)",
-      title    = paste0(combo_label, " \u2014 all pairs (ranked)"),
-      facet    = FALSE,
-      pt_alpha = 0.5,
-      pt_size  = 1.2
-    ),
-    width = 7, height = 6, dpi = 150
-  )
-
-  # rank — matched pairs
-  if (nrow(matched_combo) > 0) {
-    ggsave(
-      file.path(out_dir, "distance_rank_matched_pairs.png"),
-      make_distance_scatter(
-        matched_combo, "rank_ma", "rank_pim",
-        x_lab    = "Rank(matchAhead distance)",
-        y_lab    = "Rank(Pimentel distance)",
-        title    = paste0(combo_label, " \u2014 matched pairs only (ranked)"),
-        facet    = FALSE,
-        pt_alpha = 0.5,
-        pt_size  = 1.2
-      ),
-      width = 7, height = 6, dpi = 150
-    )
-  }
-
-  message("Saved per-combo plots for ", combo)
+  save_metric_plots(df_combo, "ma_dist", "pim_dist", "distance", "distance",
+                    prefix = "distance", title_stem = title_stem,
+                    out_dir = out_dir, facet = FALSE, pt_alpha = 0.5, pt_size = 1.2)
+  save_metric_plots(df_combo, "ma_bias", "pim_bias", "bias",     "bias",
+                    prefix = "bias",     title_stem = title_stem,
+                    out_dir = out_dir, facet = FALSE, pt_alpha = 0.5, pt_size = 1.2)
+  save_metric_plots(df_combo, "ma_ess",  "pim_ess",  "ESS",      "ESS",
+                    prefix = "ess",      title_stem = title_stem,
+                    out_dir = out_dir, facet = FALSE, pt_alpha = 0.5, pt_size = 1.2)
 }
 
 message("Done.")
