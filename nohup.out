@@ -1,0 +1,287 @@
+nohup: ignoring input
++ caliper_3_readng_a05 dispatched
+✔ caliper_3_readng_a05 completed [6.8s, 55 B]
++ student_preds_3_readng_a05 dispatched
+✔ student_preds_3_readng_a05 completed [3.3s, 4.59 MB]
++ report_model_3_readng_a05 dispatched
+✔ report_model_3_readng_a05 completed [257ms, 2.18 kB]
++ school_preds_3_readng_a05 dispatched
+✔ school_preds_3_readng_a05 completed [294ms, 51.88 kB]
++ report_caliper_3_readng_a05 dispatched
+✔ report_caliper_3_readng_a05 completed [14ms, 218 B]
++ dist_matchahead_3_readng_a05 dispatched
+✔ dist_matchahead_3_readng_a05 completed [4m 11.9s, 10.79 MB]
++ dist_pimentel_3_readng_a05 dispatched
+✔ dist_pimentel_3_readng_a05 completed [1h 9m 2.5s, 8.00 MB]
++ report_predictions_3_readng_a05 dispatched
+✔ report_predictions_3_readng_a05 completed [238ms, 879 B]
++ school_match_ma_3_readng_a05 dispatched
+distances_to_matrix: dropping 141 pairs with blank school IDs
+✔ school_match_ma_3_readng_a05 completed [1m 4.9s, 1.46 kB]
++ school_match_pim_3_readng_a05 dispatched
+distances_to_matrix: dropping 141 pairs with blank school IDs
+✔ school_match_pim_3_readng_a05 completed [1m 7.5s, 2.75 kB]
++ report_distances_3_readng_a05 dispatched
+✔ report_distances_3_readng_a05 completed [7.4s, 760 B]
++ student_match_ma_3_readng_a05 dispatched
+✔ student_match_ma_3_readng_a05 completed [13.2s, 132.19 kB]
++ student_match_pim_3_readng_a05 dispatched
+✔ student_match_pim_3_readng_a05 completed [16.1s, 190.38 kB]
++ report_school_matching_3_readng_a05 dispatched
+✔ report_school_matching_3_readng_a05 completed [37ms, 574 B]
++ effect_ma_3_readng_a05 dispatched
+✔ effect_ma_3_readng_a05 completed [1.3s, 211 B]
++ effect_pim_3_readng_a05 dispatched
+✔ effect_pim_3_readng_a05 completed [1.8s, 211 B]
++ report_student_matching_3_readng_a05 dispatched
+✔ report_student_matching_3_readng_a05 completed [476ms, 720 B]
++ comparison_3_readng_a05 dispatched
+✔ comparison_3_readng_a05 completed [4.6s, 1.16 kB]
++ report_effects_3_readng_a05 dispatched
+✔ report_effects_3_readng_a05 completed [28ms, 638 B]
++ cleaned_data_4_glmath_a05_2022 dispatched
+✔ cleaned_data_4_glmath_a05_2022 completed [50s, 10.13 MB]
++ cleaned_data_4_glmath_a05_2019 dispatched
+✔ cleaned_data_4_glmath_a05_2019 completed [47.1s, 10.22 MB]
++ raw_school_count_4_glmath_a05_model dispatched
+✔ raw_school_count_4_glmath_a05_model completed [23.2s, 51 B]
++ raw_school_count_4_glmath_a05_pred dispatched
+✔ raw_school_count_4_glmath_a05_pred completed [23.7s, 51 B]
++ treatment_4_glmath_a05 dispatched
+✔ treatment_4_glmath_a05 completed [7ms, 14.35 kB]
++ report_data_prep_4_glmath_a05_2022 dispatched
+✔ report_data_prep_4_glmath_a05_2022 completed [127ms, 986 B]
++ model_4_glmath_a05 dispatched
+✔ model_4_glmath_a05 completed [18.6s, 45.26 MB]
++ n_schools_model_year_4_glmath_a05 dispatched
+✔ n_schools_model_year_4_glmath_a05 completed [7ms, 51 B]
++ report_data_prep_4_glmath_a05_2019 dispatched
+✔ report_data_prep_4_glmath_a05_2019 completed [83ms, 985 B]
++ report_treatment_4_glmath_a05 dispatched
+✔ report_treatment_4_glmath_a05 completed [37ms, 348 B]
++ report_model_4_glmath_a05 dispatched
+✔ report_model_4_glmath_a05 completed [224ms, 2.30 kB]
++ caliper_4_glmath_a05 dispatched
+✔ caliper_4_glmath_a05 completed [6.6s, 55 B]
++ student_preds_4_glmath_a05 dispatched
+✔ student_preds_4_glmath_a05 completed [3.2s, 4.66 MB]
++ school_preds_4_glmath_a05 dispatched
+✔ school_preds_4_glmath_a05 completed [362ms, 51.66 kB]
++ report_caliper_4_glmath_a05 dispatched
+✔ report_caliper_4_glmath_a05 completed [1ms, 218 B]
++ dist_matchahead_4_glmath_a05 dispatched
+✔ dist_matchahead_4_glmath_a05 completed [3m 16.5s, 11.47 MB]
++ dist_pimentel_4_glmath_a05 dispatched
+✔ dist_pimentel_4_glmath_a05 completed [1h 11m 51.5s, 8.38 MB]
++ report_predictions_4_glmath_a05 dispatched
+✔ report_predictions_4_glmath_a05 completed [193ms, 879 B]
++ school_match_ma_4_glmath_a05 dispatched
+distances_to_matrix: dropping 140 pairs with blank school IDs
+✔ school_match_ma_4_glmath_a05 completed [1m 4.5s, 1.44 kB]
++ school_match_pim_4_glmath_a05 dispatched
+distances_to_matrix: dropping 140 pairs with blank school IDs
+✔ school_match_pim_4_glmath_a05 completed [1m 5.1s, 2.75 kB]
++ report_distances_4_glmath_a05 dispatched
+✔ report_distances_4_glmath_a05 completed [7.3s, 760 B]
++ student_match_ma_4_glmath_a05 dispatched
+✔ student_match_ma_4_glmath_a05 completed [14.6s, 142.70 kB]
++ student_match_pim_4_glmath_a05 dispatched
+✔ student_match_pim_4_glmath_a05 completed [17.1s, 190.05 kB]
++ report_school_matching_4_glmath_a05 dispatched
+✔ report_school_matching_4_glmath_a05 completed [13ms, 574 B]
++ effect_ma_4_glmath_a05 dispatched
+✔ effect_ma_4_glmath_a05 completed [1.3s, 208 B]
++ effect_pim_4_glmath_a05 dispatched
+✔ effect_pim_4_glmath_a05 completed [1.8s, 212 B]
++ report_student_matching_4_glmath_a05 dispatched
+✔ report_student_matching_4_glmath_a05 completed [394ms, 721 B]
++ comparison_4_glmath_a05 dispatched
+✔ comparison_4_glmath_a05 completed [4.2s, 1.15 kB]
++ report_effects_4_glmath_a05 dispatched
+✔ report_effects_4_glmath_a05 completed [0ms, 637 B]
++ cleaned_data_4_readng_a05_2019 dispatched
+✔ cleaned_data_4_readng_a05_2019 completed [48.2s, 10.38 MB]
++ raw_school_count_4_readng_a05_model dispatched
+✔ raw_school_count_4_readng_a05_model completed [22s, 51 B]
++ raw_school_count_4_readng_a05_pred dispatched
+✔ raw_school_count_4_readng_a05_pred completed [23.5s, 51 B]
++ cleaned_data_4_readng_a05_2022 dispatched
+✔ cleaned_data_4_readng_a05_2022 completed [47.8s, 10.24 MB]
++ model_4_readng_a05 dispatched
+✔ model_4_readng_a05 completed [14.4s, 45.85 MB]
++ report_data_prep_4_readng_a05_2019 dispatched
+✔ report_data_prep_4_readng_a05_2019 completed [148ms, 985 B]
++ n_schools_model_year_4_readng_a05 dispatched
+✔ n_schools_model_year_4_readng_a05 completed [6ms, 51 B]
++ treatment_4_readng_a05 dispatched
+✔ treatment_4_readng_a05 completed [16ms, 14.35 kB]
++ report_data_prep_4_readng_a05_2022 dispatched
+✔ report_data_prep_4_readng_a05_2022 completed [78ms, 986 B]
++ caliper_4_readng_a05 dispatched
+✔ caliper_4_readng_a05 completed [6.8s, 55 B]
++ student_preds_4_readng_a05 dispatched
+✔ student_preds_4_readng_a05 completed [3.4s, 4.65 MB]
++ school_preds_4_readng_a05 dispatched
+✔ school_preds_4_readng_a05 completed [287ms, 51.64 kB]
++ report_model_4_readng_a05 dispatched
+✔ report_model_4_readng_a05 completed [225ms, 2.30 kB]
++ report_treatment_4_readng_a05 dispatched
+✔ report_treatment_4_readng_a05 completed [20ms, 348 B]
++ report_caliper_4_readng_a05 dispatched
+✔ report_caliper_4_readng_a05 completed [0ms, 218 B]
++ dist_matchahead_4_readng_a05 dispatched
+✔ dist_matchahead_4_readng_a05 completed [3m 19.7s, 11.28 MB]
++ dist_pimentel_4_readng_a05 dispatched
+✔ dist_pimentel_4_readng_a05 completed [1h 10m 45.1s, 8.40 MB]
++ report_predictions_4_readng_a05 dispatched
+✔ report_predictions_4_readng_a05 completed [295ms, 879 B]
++ school_match_ma_4_readng_a05 dispatched
+distances_to_matrix: dropping 140 pairs with blank school IDs
+✔ school_match_ma_4_readng_a05 completed [1m 4.7s, 1.42 kB]
++ school_match_pim_4_readng_a05 dispatched
+distances_to_matrix: dropping 140 pairs with blank school IDs
+✔ school_match_pim_4_readng_a05 completed [1m 7.2s, 2.74 kB]
++ report_distances_4_readng_a05 dispatched
+✔ report_distances_4_readng_a05 completed [7.5s, 760 B]
++ student_match_ma_4_readng_a05 dispatched
+✔ student_match_ma_4_readng_a05 completed [14.6s, 142.47 kB]
++ student_match_pim_4_readng_a05 dispatched
+✔ student_match_pim_4_readng_a05 completed [15.6s, 181.88 kB]
++ report_school_matching_4_readng_a05 dispatched
+✔ report_school_matching_4_readng_a05 completed [13ms, 574 B]
++ effect_ma_4_readng_a05 dispatched
+✔ effect_ma_4_readng_a05 completed [1.4s, 209 B]
++ effect_pim_4_readng_a05 dispatched
+✔ effect_pim_4_readng_a05 completed [1.6s, 211 B]
++ report_student_matching_4_readng_a05 dispatched
+✔ report_student_matching_4_readng_a05 completed [384ms, 721 B]
++ comparison_4_readng_a05 dispatched
+✔ comparison_4_readng_a05 completed [4s, 1.15 kB]
++ report_effects_4_readng_a05 dispatched
+✔ report_effects_4_readng_a05 completed [0ms, 637 B]
++ cleaned_data_5_glmath_a05_2019 dispatched
+✔ cleaned_data_5_glmath_a05_2019 completed [48.2s, 10.10 MB]
++ cleaned_data_5_glmath_a05_2022 dispatched
+✔ cleaned_data_5_glmath_a05_2022 completed [48.2s, 10.08 MB]
++ raw_school_count_5_glmath_a05_model dispatched
+✔ raw_school_count_5_glmath_a05_model completed [21.9s, 51 B]
++ raw_school_count_5_glmath_a05_pred dispatched
+✔ raw_school_count_5_glmath_a05_pred completed [23.9s, 51 B]
++ n_schools_model_year_5_glmath_a05 dispatched
+✔ n_schools_model_year_5_glmath_a05 completed [6ms, 51 B]
++ model_5_glmath_a05 dispatched
+✔ model_5_glmath_a05 completed [10.1s, 38.35 MB]
++ report_data_prep_5_glmath_a05_2019 dispatched
+✔ report_data_prep_5_glmath_a05_2019 completed [88ms, 986 B]
++ treatment_5_glmath_a05 dispatched
+✔ treatment_5_glmath_a05 completed [7ms, 13.97 kB]
++ report_data_prep_5_glmath_a05_2022 dispatched
+✔ report_data_prep_5_glmath_a05_2022 completed [78ms, 987 B]
++ student_preds_5_glmath_a05 dispatched
+✔ student_preds_5_glmath_a05 completed [4.3s, 4.72 MB]
++ school_preds_5_glmath_a05 dispatched
+✔ school_preds_5_glmath_a05 completed [234ms, 49.55 kB]
++ caliper_5_glmath_a05 dispatched
+✔ caliper_5_glmath_a05 completed [5.6s, 55 B]
++ report_model_5_glmath_a05 dispatched
+✔ report_model_5_glmath_a05 completed [172ms, 2.30 kB]
++ report_treatment_5_glmath_a05 dispatched
+✔ report_treatment_5_glmath_a05 completed [20ms, 348 B]
++ dist_pimentel_5_glmath_a05 dispatched
+✔ dist_pimentel_5_glmath_a05 completed [1h 3m 42.3s, 7.79 MB]
++ report_predictions_5_glmath_a05 dispatched
+✔ report_predictions_5_glmath_a05 completed [198ms, 879 B]
++ dist_matchahead_5_glmath_a05 dispatched
+✔ dist_matchahead_5_glmath_a05 completed [3m 21.1s, 10.32 MB]
++ report_caliper_5_glmath_a05 dispatched
+✔ report_caliper_5_glmath_a05 completed [1ms, 218 B]
++ school_match_pim_5_glmath_a05 dispatched
+distances_to_matrix: dropping 133 pairs with blank school IDs
+✔ school_match_pim_5_glmath_a05 completed [58.8s, 2.67 kB]
++ school_match_ma_5_glmath_a05 dispatched
+distances_to_matrix: dropping 133 pairs with blank school IDs
+✔ school_match_ma_5_glmath_a05 completed [56s, 1.42 kB]
++ report_distances_5_glmath_a05 dispatched
+✔ report_distances_5_glmath_a05 completed [6.4s, 760 B]
++ student_match_pim_5_glmath_a05 dispatched
+✔ student_match_pim_5_glmath_a05 completed [19.6s, 231.68 kB]
++ student_match_ma_5_glmath_a05 dispatched
+✔ student_match_ma_5_glmath_a05 completed [12.6s, 135.52 kB]
++ report_school_matching_5_glmath_a05 dispatched
+✔ report_school_matching_5_glmath_a05 completed [14ms, 574 B]
++ effect_pim_5_glmath_a05 dispatched
+✔ effect_pim_5_glmath_a05 completed [2s, 211 B]
++ report_student_matching_5_glmath_a05 dispatched
+✔ report_student_matching_5_glmath_a05 completed [429ms, 720 B]
++ effect_ma_5_glmath_a05 dispatched
+✔ effect_ma_5_glmath_a05 completed [1.2s, 210 B]
++ comparison_5_glmath_a05 dispatched
+✔ comparison_5_glmath_a05 completed [4.8s, 1.15 kB]
++ report_effects_5_glmath_a05 dispatched
+✔ report_effects_5_glmath_a05 completed [0ms, 638 B]
++ cleaned_data_5_readng_a05_2019 dispatched
+✔ cleaned_data_5_readng_a05_2019 completed [48.6s, 10.21 MB]
++ cleaned_data_5_readng_a05_2022 dispatched
+✔ cleaned_data_5_readng_a05_2022 completed [47.2s, 10.17 MB]
++ raw_school_count_5_readng_a05_model dispatched
+✔ raw_school_count_5_readng_a05_model completed [22.5s, 51 B]
++ raw_school_count_5_readng_a05_pred dispatched
+✔ raw_school_count_5_readng_a05_pred completed [22.9s, 51 B]
++ report_data_prep_5_readng_a05_2019 dispatched
+✔ report_data_prep_5_readng_a05_2019 completed [87ms, 986 B]
++ n_schools_model_year_5_readng_a05 dispatched
+✔ n_schools_model_year_5_readng_a05 completed [7ms, 51 B]
++ model_5_readng_a05 dispatched
+✔ model_5_readng_a05 completed [11.9s, 38.69 MB]
++ treatment_5_readng_a05 dispatched
+✔ treatment_5_readng_a05 completed [6ms, 13.97 kB]
++ report_data_prep_5_readng_a05_2022 dispatched
+✔ report_data_prep_5_readng_a05_2022 completed [77ms, 987 B]
++ student_preds_5_readng_a05 dispatched
+✔ student_preds_5_readng_a05 completed [4.3s, 4.70 MB]
++ caliper_5_readng_a05 dispatched
+✔ caliper_5_readng_a05 completed [5.7s, 55 B]
++ school_preds_5_readng_a05 dispatched
+✔ school_preds_5_readng_a05 completed [234ms, 49.34 kB]
++ report_model_5_readng_a05 dispatched
+✔ report_model_5_readng_a05 completed [174ms, 2.31 kB]
++ report_treatment_5_readng_a05 dispatched
+✔ report_treatment_5_readng_a05 completed [20ms, 348 B]
++ dist_pimentel_5_readng_a05 dispatched
+✔ dist_pimentel_5_readng_a05 completed [1h 6m 7s, 7.85 MB]
++ dist_matchahead_5_readng_a05 dispatched
+✔ dist_matchahead_5_readng_a05 completed [3m 7s, 10.20 MB]
++ report_caliper_5_readng_a05 dispatched
+✔ report_caliper_5_readng_a05 completed [1ms, 218 B]
++ report_predictions_5_readng_a05 dispatched
+✔ report_predictions_5_readng_a05 completed [195ms, 879 B]
++ school_match_pim_5_readng_a05 dispatched
+distances_to_matrix: dropping 133 pairs with blank school IDs
+✔ school_match_pim_5_readng_a05 completed [58s, 2.64 kB]
++ report_distances_5_readng_a05 dispatched
+✔ report_distances_5_readng_a05 completed [6.1s, 760 B]
++ school_match_ma_5_readng_a05 dispatched
+distances_to_matrix: dropping 133 pairs with blank school IDs
+✔ school_match_ma_5_readng_a05 completed [57.7s, 1.43 kB]
++ student_match_pim_5_readng_a05 dispatched
+✔ student_match_pim_5_readng_a05 completed [19.4s, 226.52 kB]
++ student_match_ma_5_readng_a05 dispatched
+✔ student_match_ma_5_readng_a05 completed [12.8s, 135.73 kB]
++ report_school_matching_5_readng_a05 dispatched
+✔ report_school_matching_5_readng_a05 completed [15ms, 574 B]
++ effect_pim_5_readng_a05 dispatched
+✔ effect_pim_5_readng_a05 completed [2s, 209 B]
++ report_student_matching_5_readng_a05 dispatched
+✔ report_student_matching_5_readng_a05 completed [419ms, 719 B]
++ effect_ma_5_readng_a05 dispatched
+✔ effect_ma_5_readng_a05 completed [1.2s, 211 B]
++ comparison_5_readng_a05 dispatched
+✔ comparison_5_readng_a05 completed [4.7s, 1.14 kB]
++ report_effects_5_readng_a05 dispatched
+✔ report_effects_5_readng_a05 completed [0ms, 639 B]
++ final_report dispatched
+Creating outputs.csv with 6 rows
+Report written to: outputs/comparison_report.md 
+✔ final_report completed [68ms, 2.46 kB]
+✔ ended pipeline [6h 27m 6.6s, 136 completed, 39 skipped]
+There were 50 or more warnings (use warnings() to see the first 50)
