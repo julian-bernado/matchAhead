@@ -226,34 +226,37 @@ make_scatter <- function(df, x_col, y_col, x_lab, y_lab, title,
 # Save the 4 standard variants (raw/rank × all/matched) for one metric.
 save_metric_plots <- function(df, x_col, y_col, x_lab, y_lab,
                                prefix, title_stem,
-                               out_dir  = "plots",
-                               facet    = TRUE,
-                               pt_alpha = 0.4,
-                               pt_size  = 1.0) {
+                               out_dir    = "plots",
+                               facet      = TRUE,
+                               pt_alpha   = 0.4,
+                               pt_size    = 1.0,
+                               ranks_only = FALSE) {
   w <- if (facet) 14 else 7
   h <- if (facet) 8  else 6
 
   d <- prep_metric(df, x_col, y_col)
   m <- d |> filter(match_status != "Neither")
 
-  ggsave(
-    file.path(out_dir, paste0(prefix, "_raw_all_pairs.png")),
-    make_scatter(d, x_col, y_col,
-      x_lab = paste("matchAhead", x_lab), y_lab = paste("Pimentel", y_lab),
-      title = paste0(title_stem, ": matchAhead vs Pimentel (all pairs)"),
-      facet = facet, pt_alpha = pt_alpha, pt_size = pt_size),
-    width = w, height = h, dpi = 150
-  )
-
-  if (nrow(m) > 0) {
+  if (!ranks_only) {
     ggsave(
-      file.path(out_dir, paste0(prefix, "_raw_matched_pairs.png")),
-      make_scatter(m, x_col, y_col,
+      file.path(out_dir, paste0(prefix, "_raw_all_pairs.png")),
+      make_scatter(d, x_col, y_col,
         x_lab = paste("matchAhead", x_lab), y_lab = paste("Pimentel", y_lab),
-        title = paste0(title_stem, ": matchAhead vs Pimentel (matched pairs only)"),
+        title = paste0(title_stem, ": matchAhead vs Pimentel (all pairs)"),
         facet = facet, pt_alpha = pt_alpha, pt_size = pt_size),
       width = w, height = h, dpi = 150
     )
+
+    if (nrow(m) > 0) {
+      ggsave(
+        file.path(out_dir, paste0(prefix, "_raw_matched_pairs.png")),
+        make_scatter(m, x_col, y_col,
+          x_lab = paste("matchAhead", x_lab), y_lab = paste("Pimentel", y_lab),
+          title = paste0(title_stem, ": matchAhead vs Pimentel (matched pairs only)"),
+          facet = facet, pt_alpha = pt_alpha, pt_size = pt_size),
+        width = w, height = h, dpi = 150
+      )
+    }
   }
 
   ggsave(
@@ -285,7 +288,8 @@ save_metric_plots <- function(df, x_col, y_col, x_lab, y_lab,
 
 if (nrow(pair_data) > 0) {
   save_metric_plots(pair_data, "ma_dist", "pim_dist", "distance", "distance",
-                    prefix = "distance", title_stem = "School-pair distances")
+                    prefix = "distance", title_stem = "School-pair distances",
+                    ranks_only = TRUE)
   save_metric_plots(pair_data, "ma_bias", "pim_bias", "bias",     "bias",
                     prefix = "bias",     title_stem = "School-pair bias")
   save_metric_plots(pair_data, "ma_ess",  "pim_ess",  "ESS",      "ESS",
@@ -313,7 +317,8 @@ for (gs in grade_subjects) {
 
   save_metric_plots(df_combo, "ma_dist", "pim_dist", "distance", "distance",
                     prefix = "distance", title_stem = title_stem,
-                    out_dir = out_dir, facet = FALSE, pt_alpha = 0.5, pt_size = 1.2)
+                    out_dir = out_dir, facet = FALSE, pt_alpha = 0.5, pt_size = 1.2,
+                    ranks_only = TRUE)
   save_metric_plots(df_combo, "ma_bias", "pim_bias", "bias",     "bias",
                     prefix = "bias",     title_stem = title_stem,
                     out_dir = out_dir, facet = FALSE, pt_alpha = 0.5, pt_size = 1.2)

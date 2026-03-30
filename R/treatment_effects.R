@@ -111,7 +111,7 @@ estimate_treatment_effect <- function(matched_data) {
     output@StudySpecification <- spec
 
     # Extract results - coefficient name is "treatment." (propertee convention)
-    coef_summary <- summary(output)$coefficients
+    coef_summary <- summary(output, vcov.type = "HC2")$coefficients
     estimate <- coef_summary["treatment.", "Estimate"]
     se <- coef_summary["treatment.", "Std. Error"]
 
